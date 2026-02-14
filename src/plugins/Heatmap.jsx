@@ -13,7 +13,7 @@ import { ResponsiveHeatMap } from "@nivo/heatmap";
  *   - dimension2: column labels (e.g., "9 AM", "Impressions")
  *   - measure: numeric value for each cell
  */
-export default function Heatmap({ config, sigmaData, setLoading }) {
+export default function Heatmap({ config, sigmaData, setLoading, onSelect }) {
   const chartData = useMemo(() => {
     const rowCol = sigmaData[config.dimension1];
     const colCol = sigmaData[config.dimension2];
@@ -96,6 +96,9 @@ export default function Heatmap({ config, sigmaData, setLoading }) {
           labelTextColor={{ from: "color", modifiers: [["darker", 2]] }}
           enableLabels={config.showLabels ?? true}
           hoverTarget="cell"
+          onClick={(cell) => {
+            if (onSelect) onSelect(`${cell.serieId} × ${cell.data.x}`);
+          }}
           tooltip={({ cell }) => (
             <div style={{
               background: "white", padding: "8px 12px", borderRadius: 4,

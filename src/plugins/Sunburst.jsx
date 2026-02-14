@@ -1,21 +1,21 @@
 import { useMemo, useEffect } from "react";
-import { ResponsiveTreeMap } from "@nivo/treemap";
+import { ResponsiveSunburst } from "@nivo/sunburst";
 
 /**
- * Treemap Plugin
+ * Sunburst Plugin
  *
- * Takes Sigma's column-oriented data and renders a hierarchical treemap.
- * Great for: spend breakdowns, category/subcategory analysis,
- * portfolio composition, budget allocation, etc.
+ * Renders a radial hierarchical chart (concentric rings).
+ * Great for: category/subcategory breakdowns, org structures,
+ * file-size distributions, budget allocation, etc.
  *
  * Required columns:
  *   - dimension1: parent category (e.g., "Marketing", "Engineering")
- *   - dimension2: child/subcategory (e.g., "Facebook Ads", "Google Ads")
+ *   - dimension2: child/subcategory (optional — flat ring if omitted)
  *   - measure: numeric value (e.g., spend, revenue, count)
  *
- * If dimension2 is not mapped, renders a flat treemap of dimension1.
+ * Uses the same data transformation pattern as Treemap.
  */
-export default function Treemap({ config, sigmaData, setLoading, onSelect }) {
+export default function Sunburst({ config, sigmaData, setLoading, onSelect }) {
   const treeData = useMemo(() => {
     const cats = sigmaData[config.dimension1];
     const subcats = config.dimension2 ? sigmaData[config.dimension2] : null;
@@ -23,13 +23,11 @@ export default function Treemap({ config, sigmaData, setLoading, onSelect }) {
 
     if (!cats || !vals) return null;
 
-    // Build hierarchy: { parent: { child: sumValue } }
     const tree = {};
 
     for (let i = 0; i < cats.length; i++) {
       const cat = String(cats[i] ?? "Other");
-      const val = Math.abs(Number(vals[i]) || 0); // treemaps need positive values
-
+      const val = Math.abs(Number(vals[i]) || 0);
       if (val === 0) continue;
 
       if (subcats) {
@@ -41,23 +39,22 @@ export default function Treemap({ config, sigmaData, setLoading, onSelect }) {
       }
     }
 
-    // Convert to Nivo's tree format
     if (subcats) {
       return {
-        name: config.title || "root",
+        id: config.title || "root",
         children: Object.entries(tree).map(([cat, subs]) => ({
-          name: cat,
+          id: cat,
           children: Object.entries(subs).map(([sub, val]) => ({
-            name: sub,
+            id: sub,
             value: val,
           })),
         })),
       };
     } else {
       return {
-        name: config.title || "root",
+        id: config.title || "root",
         children: Object.entries(tree).map(([cat, val]) => ({
-          name: cat,
+          id: cat,
           value: val,
         })),
       };
@@ -69,12 +66,13 @@ export default function Treemap({ config, sigmaData, setLoading, onSelect }) {
   }, [treeData, setLoading]);
 
   if (!treeData || !treeData.children?.length) {
-    return <div style={{ padding: 20, color: "#999", textAlign: "center" }}>
-      No data to display. Check column mappings.
-    </div>;
+    return (
+      <div style={{ padding: 20, color: "#999", textAlign: "center" }}>
+        No data to display. Check column mappings.
+      </div>
+    );
   }
 
-  // Map color scheme names to Nivo treemap-compatible schemes
   const schemeMap = {
     blues: "blues",
     greens: "greens",
@@ -97,44 +95,43 @@ export default function Treemap({ config, sigmaData, setLoading, onSelect }) {
         </div>
       )}
       <div style={{ flex: 1, minHeight: 0 }}>
-        <ResponsiveTreeMap
+        <ResponsiveSunburst
           data={treeData}
-          identity="name"
+          id="id"
           value="value"
           valueFormat=">,.0f"
           margin={{ top: 10, right: 10, bottom: 10, left: 10 }}
-          tile="squarify"
-          leavesOnly={false}
-          innerPadding={3}
-          outerPadding={3}
-          borderWidth={2}
+          cornerRadius={2}
+          borderWidth={1}
           borderColor={{ from: "color", modifiers: [["darker", 0.5]] }}
           colors={{ scheme: schemeMap[config.colorScheme] || "blues" }}
-          nodeOpacity={1}
-          enableLabel={config.showLabels ?? true}
-          label={(node) => {
-            // Only show label if the node is big enough
-            if (node.width < 40 || node.height < 25) return "";
-            const val = node.value.toLocaleString();
-            return node.width > 80 ? `${node.id}\n${val}` : node.id;
-          }}
-          labelSkipSize={24}
-          labelTextColor={{ from: "color", modifiers: [["darker", 2.5]] }}
-          parentLabelPosition="left"
-          parentLabelTextColor={{ from: "color", modifiers: [["darker", 3]] }}
-          onClick={(node) => {
-            if (onSelect) onSelect(node.id);
-          }}
-          tooltip={({ node }) => (
+          childColor={{ from: "color", modifiers: [["brighter", 0.3]] }}
+          inheritColorFromParent={true}
+          enableArcLabels={config.showLabels ?? true}
+          arcLabel="id"
+          arcLabelsSkipAngle={10}
+          arcLabelsTextColor={{ from: "color", modifiers: [["darker", 2.5]] }}
+          animate={true}
+          motionConfig="gentle"
+          tooltip={(node) => (
             <div style={{
               background: "white", padding: "8px 12px", borderRadius: 4,
               boxShadow: "0 2px 8px rgba(0,0,0,0.15)", fontSize: 13,
+              display: "flex", alignItems: "center", gap: 8,
             }}>
-              <strong>{node.pathComponents.join(" → ")}</strong>
-              <br />
-              {node.formattedValue}
+              <span style={{
+                display: "inline-block", width: 12, height: 12,
+                backgroundColor: node.color, borderRadius: 2,
+              }} />
+              <span>
+                <strong>{node.id}</strong>: {node.formattedValue}
+                {node.percentage != null && ` (${node.percentage.toFixed(1)}%)`}
+              </span>
             </div>
           )}
+          onClick={(node) => {
+            if (onSelect && node.id) onSelect(String(node.id));
+          }}
         />
       </div>
     </div>

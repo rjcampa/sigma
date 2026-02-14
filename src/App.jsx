@@ -4,31 +4,104 @@ import {
   useElementData,
   useElementColumns,
   useLoadingState,
+  useActionTrigger,
+  useVariable,
 } from "@sigmacomputing/plugin";
 import Heatmap from "./plugins/Heatmap";
 import Treemap from "./plugins/Treemap";
+import Sunburst from "./plugins/Sunburst";
+import Calendar from "./plugins/Calendar";
+import Funnel from "./plugins/Funnel";
+import Pie from "./plugins/Pie";
+import Sankey from "./plugins/Sankey";
+import Chord from "./plugins/Chord";
+import Bump from "./plugins/Bump";
+import Radar from "./plugins/Radar";
+import RadialBar from "./plugins/RadialBar";
+import CirclePacking from "./plugins/CirclePacking";
+import Stream from "./plugins/Stream";
+import Waffle from "./plugins/Waffle";
+import Bullet from "./plugins/Bullet";
+import Marimekko from "./plugins/Marimekko";
+import SwarmPlot from "./plugins/SwarmPlot";
 
-const CHART_TYPES = ["Heatmap", "Treemap"];
+const CHART_TYPES = [
+  // Matrix / Grid
+  "Heatmap", "Calendar",
+  // Hierarchical
+  "Treemap", "Sunburst", "CirclePacking",
+  // Part-to-Whole
+  "Pie", "Waffle", "Funnel",
+  // Flow / Relationship
+  "Sankey", "Chord",
+  // Ranking / Time Series
+  "Bump", "Stream",
+  // Comparison
+  "Radar", "RadialBar", "Bullet", "Marimekko",
+  // Distribution
+  "SwarmPlot",
+];
+
+const CHART_COMPONENTS = {
+  Heatmap, Treemap, Sunburst, Calendar, Funnel, Pie, Sankey, Chord,
+  Bump, Radar, RadialBar, CirclePacking, Stream, Waffle, Bullet,
+  Marimekko, SwarmPlot,
+};
+
+// Dynamic sidebar labels per chart type
+const DIM1_LABELS = {
+  Heatmap: "Category (rows)", Treemap: "Parent category", Sunburst: "Parent category",
+  CirclePacking: "Parent category", Calendar: "Date column", Funnel: "Stage / Step",
+  Pie: "Category / Slice", Sankey: "Source node", Chord: "Source",
+  Bump: "Series / Entity", Radar: "Entity", RadialBar: "Category",
+  Stream: "Time period", Waffle: "Category", Bullet: "Metric name",
+  Marimekko: "Category", SwarmPlot: "Group",
+};
+
+const DIM2_LABELS = {
+  Heatmap: "Sub-category (columns)", Treemap: "Sub-category (child)",
+  Sunburst: "Sub-category (child)", CirclePacking: "Sub-category (child)",
+  Sankey: "Target node", Chord: "Target", Bump: "Time period",
+  Radar: "Metric", RadialBar: "Sub-category", Stream: "Category",
+  Bullet: "Target value", Marimekko: "Sub-category",
+};
+
+// Charts that do NOT use dimension2 at all
+const HIDE_DIM2 = new Set(["Calendar", "Funnel", "Pie", "Waffle", "SwarmPlot"]);
 
 export default function App() {
   const [loading, setLoading] = useLoadingState(true);
+  const config = useConfig();
+
+  const chartType = config.chartType || "Heatmap";
+  const showDim2 = !HIDE_DIM2.has(chartType);
 
   // --------------------------------------------------
-  // Define config panel (shows in Sigma's right sidebar)
+  // Build config panel dynamically based on chart type
   // --------------------------------------------------
-  useEditorPanelConfig([
-    // Chart type selector
+  const panelConfig = [
     { type: "dropdown", name: "chartType", label: "Chart Type",
       values: CHART_TYPES, defaultValue: "Heatmap" },
 
-    // Data source — user picks a table/element from the workbook
     { type: "element", name: "source", label: "Data Source" },
 
-    // Column mappings — shared across chart types
-    { type: "column", name: "dimension1", label: "Category (rows/parent)",
-      source: "source", allowMultiple: false },
-    { type: "column", name: "dimension2", label: "Sub-category (cols/child)",
-      source: "source", allowMultiple: false },
+    // Primary dimension
+    { type: "column", name: "dimension1",
+      label: DIM1_LABELS[chartType] || "Dimension",
+      source: "source", allowMultiple: false,
+      ...(chartType === "Calendar" ? { allowedTypes: ["datetime"] } : {}) },
+
+    // Secondary dimension (conditional)
+    ...(showDim2
+      ? [{ type: "column", name: "dimension2",
+           label: DIM2_LABELS[chartType] || "Sub-category",
+           source: "source", allowMultiple: false,
+           ...(chartType === "Bullet"
+             ? { allowedTypes: ["number", "integer"] }
+             : {}) }]
+      : []),
+
+    // Measure
     { type: "column", name: "measure", label: "Value (numeric)",
       source: "source", allowMultiple: false,
       allowedTypes: ["number", "integer"] },
@@ -39,13 +112,32 @@ export default function App() {
       values: ["blues", "greens", "reds", "oranges", "purples", "blue_green", "yellow_green"],
       defaultValue: "blues" },
     { type: "toggle", name: "showLabels", label: "Show Labels", defaultValue: true },
-  ]);
 
-  const config = useConfig();
+    // Actions — fire when a user clicks a chart element
+    { type: "action-trigger", name: "onSelect", label: "On Element Click" },
+    // Variable — passes the clicked value to a workbook control
+    { type: "variable", name: "selectedValue", label: "Selected Value" },
+  ];
+
+  useEditorPanelConfig(panelConfig);
+
+  // --------------------------------------------------
+  // Data & actions
+  // --------------------------------------------------
   const columns = useElementColumns(config.source);
   const sigmaData = useElementData(config.source);
+  const triggerAction = useActionTrigger("onSelect");
+  const [, setSelectedValue] = useVariable("selectedValue");
 
-  // Check if we have enough config to render
+  /** Called by every chart component when the user clicks an element. */
+  const onSelect = (value) => {
+    try { if (typeof setSelectedValue === "function") setSelectedValue(String(value)); } catch (_) {}
+    try { if (typeof triggerAction === "function") triggerAction(); } catch (_) {}
+  };
+
+  // --------------------------------------------------
+  // Guards
+  // --------------------------------------------------
   const isConfigured = config.source && config.dimension1 && config.measure;
   const hasData = sigmaData && Object.keys(sigmaData).length > 0;
 
@@ -55,9 +147,8 @@ export default function App() {
         <div style={styles.placeholderIcon}>📊</div>
         <div style={styles.placeholderTitle}>Custom Visualization Plugin</div>
         <div style={styles.placeholderText}>
-          Select a <strong>Data Source</strong>, then map your{" "}
-          <strong>Category</strong>, <strong>Sub-category</strong>, and{" "}
-          <strong>Value</strong> columns in the panel to the right.
+          Select a <strong>Data Source</strong>, then map your columns
+          in the panel to the right.
         </div>
       </div>
     );
@@ -66,21 +157,18 @@ export default function App() {
   if (!hasData) {
     return (
       <div style={styles.placeholder}>
-        <div style={styles.placeholderText}>Waiting for data...</div>
+        <div style={styles.placeholderText}>Waiting for data…</div>
       </div>
     );
   }
 
-  // Route to the selected chart type
-  const chartProps = { config, sigmaData, columns, setLoading };
+  // --------------------------------------------------
+  // Route to chart component
+  // --------------------------------------------------
+  const ChartComponent = CHART_COMPONENTS[chartType] || Heatmap;
+  const chartProps = { config, sigmaData, columns, setLoading, onSelect };
 
-  switch (config.chartType) {
-    case "Treemap":
-      return <Treemap {...chartProps} />;
-    case "Heatmap":
-    default:
-      return <Heatmap {...chartProps} />;
-  }
+  return <ChartComponent {...chartProps} />;
 }
 
 const styles = {
