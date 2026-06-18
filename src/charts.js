@@ -26,6 +26,9 @@ import ParallelCoordinates from "./plugins/ParallelCoordinates";
 import BoxPlot from "./plugins/BoxPlot";
 import Voronoi from "./plugins/Voronoi";
 import AreaBump from "./plugins/AreaBump";
+import Histogram from "./plugins/Histogram";
+import Ridgeline from "./plugins/Ridgeline";
+import Hexbin from "./plugins/Hexbin";
 
 export const CHART_TYPES = [
   // Matrix / Grid
@@ -42,11 +45,13 @@ export const CHART_TYPES = [
   "Radar", "RadialBar", "Bullet", "Marimekko", "ParallelCoordinates",
   // Distribution
   "SwarmPlot", "BoxPlot", "Voronoi",
+  // Statistical / Density (Observable Plot)
+  "Histogram", "Ridgeline", "Hexbin",
 ];
 
 export const CHART_COMPONENTS = {
   Heatmap, Treemap, Sunburst, Calendar, Funnel, Pie, Sankey, Chord,
   Bump, Radar, RadialBar, CirclePacking, Stream, Waffle, Bullet,
   Marimekko, SwarmPlot, Tree, Icicle, Network, ParallelCoordinates,
-  BoxPlot, Voronoi, AreaBump,
+  BoxPlot, Voronoi, AreaBump, Histogram, Ridgeline, Hexbin,
 };
