@@ -1,5 +1,6 @@
 import { useMemo, useEffect } from "react";
 import { ResponsiveBump } from "@nivo/bump";
+import { aggregate } from "../aggregate";
 
 /**
  * Bump Chart Plugin
@@ -28,17 +29,18 @@ export default function Bump({ config, sigmaData, setLoading, onSelect, theme })
       const time = String(timeCol[i] ?? "");
       const val = Number(valCol[i]) || 0;
       if (!map[entity]) map[entity] = {};
-      map[entity][time] = (map[entity][time] || 0) + val;
+      (map[entity][time] ||= []).push(val);
       times.add(time);
     }
 
+    const method = config.aggregation || "Sum";
     const sortedTimes = [...times].sort();
 
     // Compute ranks per time period (descending value → rank 1)
     const rankings = {};
     for (const time of sortedTimes) {
       const vals = Object.entries(map)
-        .map(([entity, timesMap]) => ({ entity, value: timesMap[time] || 0 }))
+        .map(([entity, timesMap]) => ({ entity, value: timesMap[time] ? aggregate(timesMap[time], method) : 0 }))
         .sort((a, b) => b.value - a.value);
       vals.forEach((v, idx) => {
         if (!rankings[v.entity]) rankings[v.entity] = {};

@@ -1,6 +1,7 @@
 import { useState, Suspense } from "react";
 import { CHART_TYPES, CHART_COMPONENTS } from "./charts";
 import { buildTheme } from "./theme";
+import { AGG_METHODS } from "./aggregate";
 
 /**
  * Standalone DEV PREVIEW — renders the chart components with mock data so you
@@ -95,6 +96,10 @@ export default function DevPreview() {
   );
   const [appearance, setAppearance] = useState("Light");
   const [colorScheme, setColorScheme] = useState("blues");
+  const initialAgg = new URLSearchParams(window.location.search).get("agg");
+  const [aggregation, setAggregation] = useState(
+    AGG_METHODS.includes(initialAgg) ? initialAgg : "Sum"
+  );
   const [clicked, setClicked] = useState(null);
 
   const theme = buildTheme({ appearance });
@@ -105,6 +110,7 @@ export default function DevPreview() {
     source: "demo",
     ...demoConfigFor(chartType),
     colorScheme,
+    aggregation,
     showLabels: true,
     title: "",
     appearance,
@@ -148,6 +154,13 @@ export default function DevPreview() {
           Color
           <select style={selStyle} value={colorScheme} onChange={(e) => setColorScheme(e.target.value)}>
             {SCHEMES.map((s) => <option key={s} value={s}>{s}</option>)}
+          </select>
+        </label>
+
+        <label style={{ display: "flex", alignItems: "center", gap: 6 }}>
+          Agg
+          <select style={selStyle} value={aggregation} onChange={(e) => setAggregation(e.target.value)}>
+            {AGG_METHODS.map((a) => <option key={a} value={a}>{a}</option>)}
           </select>
         </label>
 

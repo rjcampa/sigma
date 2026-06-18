@@ -1,5 +1,6 @@
 import { useMemo, useEffect } from "react";
 import { ResponsiveStream } from "@nivo/stream";
+import { aggregate } from "../aggregate";
 
 /**
  * Stream / Stacked Area Plugin
@@ -30,7 +31,7 @@ export default function Stream({ config, sigmaData, setLoading, onSelect, theme 
       const cat = String(catCol[i] ?? "Other");
       const val = Number(valCol[i]) || 0;
       if (!map[time]) map[time] = {};
-      map[time][cat] = (map[time][cat] || 0) + val;
+      (map[time][cat] ||= []).push(val);
       cats.add(cat);
       times.add(time);
     }
@@ -39,10 +40,11 @@ export default function Stream({ config, sigmaData, setLoading, onSelect, theme 
     const keys = [...cats].sort();
 
     // Each array element = one time point with all categories
+    const method = config.aggregation || "Sum";
     const data = sortedTimes.map((time) => {
       const row = {};
       for (const cat of keys) {
-        row[cat] = map[time]?.[cat] || 0;
+        row[cat] = map[time]?.[cat] ? aggregate(map[time][cat], method) : 0;
       }
       return row;
     });

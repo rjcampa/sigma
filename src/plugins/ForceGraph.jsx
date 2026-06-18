@@ -1,5 +1,6 @@
 import { useMemo, useEffect, useRef, useState, useCallback } from "react";
 import ForceGraph2D from "react-force-graph-2d";
+import { aggregate } from "../aggregate";
 
 /**
  * Force Graph Plugin (animated network, canvas/WebGL via react-force-graph)
@@ -35,7 +36,6 @@ export default function ForceGraph({ config, sigmaData, setLoading, onSelect, th
     const isTarget = new Set();
     const degree = {};
     const linkMap = {};
-    let maxWeight = 0;
 
     for (let i = 0; i < srcCol.length; i++) {
       const src = String(srcCol[i] ?? "Other");
@@ -44,30 +44,40 @@ export default function ForceGraph({ config, sigmaData, setLoading, onSelect, th
       if (val === 0 || src === tgt) continue;
       isSource.add(src);
       isTarget.add(tgt);
-      degree[src] = (degree[src] || 0) + val;
-      degree[tgt] = (degree[tgt] || 0) + val;
+      (degree[src] ||= []).push(val);
+      (degree[tgt] ||= []).push(val);
       const key = `${src}\0${tgt}`;
-      if (!linkMap[key]) linkMap[key] = { source: src, target: tgt, value: 0 };
-      linkMap[key].value += val;
-      maxWeight = Math.max(maxWeight, linkMap[key].value);
+      if (!linkMap[key]) linkMap[key] = { source: src, target: tgt, values: [] };
+      linkMap[key].values.push(val);
     }
 
     const ids = new Set([...isSource, ...isTarget]);
     if (!ids.size) return null;
 
+    const method = config.aggregation || "Sum";
+
     const [cSrc, cTgt, cBoth] = ROLE_COLORS[config.colorScheme] || ROLE_COLORS.blues;
-    const maxDeg = Math.max(1, ...Object.values(degree));
+    const degreeAgg = {};
+    for (const id of ids) degreeAgg[id] = degree[id] ? aggregate(degree[id], method) : 0;
+    const maxDeg = Math.max(1, ...Object.values(degreeAgg));
 
     const nodes = [...ids].map((id) => {
       const both = isSource.has(id) && isTarget.has(id);
       return {
         id,
         color: both ? cBoth : isTarget.has(id) ? cTgt : cSrc,
-        val: 2 + 8 * ((degree[id] || 0) / maxDeg),
+        val: 2 + 8 * ((degreeAgg[id] || 0) / maxDeg),
       };
     });
 
-    const links = Object.values(linkMap).map((l) => ({
+    const linkValues = Object.values(linkMap).map((l) => ({
+      source: l.source,
+      target: l.target,
+      value: aggregate(l.values, method),
+    }));
+    const maxWeight = Math.max(0, ...linkValues.map((l) => l.value));
+
+    const links = linkValues.map((l) => ({
       source: l.source,
       target: l.target,
       value: l.value,
@@ -76,7 +86,7 @@ export default function ForceGraph({ config, sigmaData, setLoading, onSelect, th
     }));
 
     return { nodes, links };
-  }, [sigmaData, config.dimension1, config.dimension2, config.measure, config.colorScheme]);
+  }, [sigmaData, config.dimension1, config.dimension2, config.measure, config.colorScheme, config.aggregation]);
 
   useEffect(() => {
     if (graph) setLoading(false);

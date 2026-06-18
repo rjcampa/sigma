@@ -1,5 +1,6 @@
 import { useMemo, useEffect } from "react";
 import { ResponsivePie } from "@nivo/pie";
+import { aggregate } from "../aggregate";
 
 /**
  * Pie / Donut Plugin
@@ -22,11 +23,12 @@ export default function Pie({ config, sigmaData, setLoading, onSelect, theme }) 
     for (let i = 0; i < labelCol.length; i++) {
       const label = String(labelCol[i] ?? "Other");
       const val = Math.abs(Number(valCol[i]) || 0);
-      agg[label] = (agg[label] || 0) + val;
+      (agg[label] ||= []).push(val);
     }
 
+    const method = config.aggregation || "Sum";
     return Object.entries(agg)
-      .map(([label, value]) => ({ id: label, label, value }))
+      .map(([label, values]) => ({ id: label, label, value: aggregate(values, method) }))
       .sort((a, b) => b.value - a.value);
   }, [sigmaData, config.dimension1, config.measure]);
 

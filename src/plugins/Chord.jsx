@@ -1,5 +1,6 @@
 import { useMemo, useEffect } from "react";
 import { ResponsiveChord } from "@nivo/chord";
+import { aggregate } from "../aggregate";
 
 /**
  * Chord Diagram Plugin
@@ -30,8 +31,10 @@ export default function Chord({ config, sigmaData, setLoading, onSelect, theme }
       nodeSet.add(src);
       nodeSet.add(tgt);
       const key = `${src}\0${tgt}`;
-      links[key] = (links[key] || 0) + val;
+      (links[key] ||= []).push(val);
     }
+
+    const method = config.aggregation || "Sum";
 
     const sortedKeys = [...nodeSet].sort();
     const idx = Object.fromEntries(sortedKeys.map((k, i) => [k, i]));
@@ -39,7 +42,7 @@ export default function Chord({ config, sigmaData, setLoading, onSelect, theme }
 
     for (const [key, val] of Object.entries(links)) {
       const [src, tgt] = key.split("\0");
-      mat[idx[src]][idx[tgt]] = val;
+      mat[idx[src]][idx[tgt]] = aggregate(val, method);
     }
 
     return { matrix: mat, keys: sortedKeys };

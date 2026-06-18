@@ -1,5 +1,6 @@
 import { useMemo, useEffect } from "react";
 import { ResponsiveNetwork } from "@nivo/network";
+import { aggregate } from "../aggregate";
 
 /**
  * Network / Force-Directed Graph Plugin
@@ -34,11 +35,11 @@ export default function Network({ config, sigmaData, setLoading, onSelect, theme
     const valCol = sigmaData[config.measure];
     if (!srcCol || !tgtCol || !valCol) return null;
 
+    const method = config.aggregation || "Sum";
     const isSource = new Set();
     const isTarget = new Set();
     const degree = {};
     const linkMap = {};
-    let maxWeight = 0;
 
     for (let i = 0; i < srcCol.length; i++) {
       const src = String(srcCol[i] ?? "Other");
@@ -48,26 +49,33 @@ export default function Network({ config, sigmaData, setLoading, onSelect, theme
 
       isSource.add(src);
       isTarget.add(tgt);
-      degree[src] = (degree[src] || 0) + val;
-      degree[tgt] = (degree[tgt] || 0) + val;
+      (degree[src] ||= []).push(val);
+      (degree[tgt] ||= []).push(val);
 
       const key = `${src}\0${tgt}`;
-      if (!linkMap[key]) linkMap[key] = { source: src, target: tgt, value: 0 };
-      linkMap[key].value += val;
-      maxWeight = Math.max(maxWeight, linkMap[key].value);
+      if (!linkMap[key]) linkMap[key] = { source: src, target: tgt, values: [] };
+      linkMap[key].values.push(val);
     }
 
     const ids = new Set([...isSource, ...isTarget]);
     if (!ids.size) return null;
 
+    let maxWeight = 0;
+    for (const l of Object.values(linkMap)) {
+      l.value = aggregate(l.values, method);
+      maxWeight = Math.max(maxWeight, l.value);
+    }
+
     const [cSrc, cTgt, cBoth] = ROLE_COLORS[config.colorScheme] || ROLE_COLORS.blues;
-    const maxDeg = Math.max(1, ...Object.values(degree));
+    const degreeTotals = {};
+    for (const id of ids) degreeTotals[id] = degree[id] ? aggregate(degree[id], method) : 0;
+    const maxDeg = Math.max(1, ...Object.values(degreeTotals));
 
     const nodes = [...ids].map((id) => {
       const both = isSource.has(id) && isTarget.has(id);
       const color = both ? cBoth : isTarget.has(id) ? cTgt : cSrc;
       // size scaled 10..30 by weighted degree
-      const size = 10 + 20 * Math.sqrt((degree[id] || 0) / maxDeg);
+      const size = 10 + 20 * Math.sqrt((degreeTotals[id] || 0) / maxDeg);
       return { id, color, size };
     });
 
@@ -80,7 +88,7 @@ export default function Network({ config, sigmaData, setLoading, onSelect, theme
     }));
 
     return { nodes, links, maxWeight };
-  }, [sigmaData, config.dimension1, config.dimension2, config.measure, config.colorScheme]);
+  }, [sigmaData, config.dimension1, config.dimension2, config.measure, config.colorScheme, config.aggregation]);
 
   useEffect(() => {
     if (graph) setLoading(false);

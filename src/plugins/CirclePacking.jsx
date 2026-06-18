@@ -1,5 +1,6 @@
 import { useMemo, useEffect } from "react";
 import { ResponsiveCirclePacking } from "@nivo/circle-packing";
+import { aggregate } from "../aggregate";
 
 /**
  * Circle Packing Plugin
@@ -31,11 +32,13 @@ export default function CirclePacking({ config, sigmaData, setLoading, onSelect,
       if (subcats) {
         const sub = String(subcats[i] ?? "Other");
         if (!tree[cat]) tree[cat] = {};
-        tree[cat][sub] = (tree[cat][sub] || 0) + val;
+        (tree[cat][sub] ||= []).push(val);
       } else {
-        tree[cat] = (tree[cat] || 0) + val;
+        (tree[cat] ||= []).push(val);
       }
     }
+
+    const method = config.aggregation || "Sum";
 
     if (subcats) {
       return {
@@ -44,7 +47,7 @@ export default function CirclePacking({ config, sigmaData, setLoading, onSelect,
           id: cat,
           children: Object.entries(subs).map(([sub, val]) => ({
             id: sub,
-            value: val,
+            value: aggregate(val, method),
           })),
         })),
       };
@@ -53,7 +56,7 @@ export default function CirclePacking({ config, sigmaData, setLoading, onSelect,
         id: config.title || "root",
         children: Object.entries(tree).map(([cat, val]) => ({
           id: cat,
-          value: val,
+          value: aggregate(val, method),
         })),
       };
     }

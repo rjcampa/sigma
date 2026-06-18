@@ -1,5 +1,6 @@
 import { useMemo, useEffect } from "react";
 import { ResponsiveCalendar } from "@nivo/calendar";
+import { aggregate } from "../aggregate";
 
 /**
  * Calendar Heatmap Plugin
@@ -45,14 +46,16 @@ export default function Calendar({ config, sigmaData, setLoading, onSelect, them
     for (let i = 0; i < dateCol.length; i++) {
       const day = toYMD(dateCol[i]);
       if (!day) continue;
-      dayMap[day] = (dayMap[day] || 0) + (Number(valCol[i]) || 0);
+      (dayMap[day] ||= []).push(Number(valCol[i]) || 0);
     }
 
     const days = Object.keys(dayMap).sort();
     if (!days.length) return { chartData: [], from: "", to: "" };
 
+    const method = config.aggregation || "Sum";
+
     return {
-      chartData: days.map((day) => ({ day, value: dayMap[day] })),
+      chartData: days.map((day) => ({ day, value: aggregate(dayMap[day], method) })),
       from: days[0],
       to: days[days.length - 1],
     };

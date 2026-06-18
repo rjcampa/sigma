@@ -1,5 +1,6 @@
 import { useMemo, useEffect } from "react";
 import { ResponsiveParallelCoordinates } from "@nivo/parallel-coordinates";
+import { aggregate } from "../aggregate";
 
 /**
  * Parallel Coordinates Plugin ("spaghetti" multi-axis chart)
@@ -31,7 +32,7 @@ export default function ParallelCoordinates({ config, sigmaData, setLoading, the
       const axis = String(axisCol[i] ?? "Other");
       const val = Number(valCol[i]) || 0;
       if (!pivot[entity]) pivot[entity] = {};
-      pivot[entity][axis] = (pivot[entity][axis] || 0) + val;
+      (pivot[entity][axis] ||= []).push(val);
       axes.add(axis);
     }
 
@@ -49,9 +50,10 @@ export default function ParallelCoordinates({ config, sigmaData, setLoading, the
       legendOffset: idx % 2 === 0 ? -20 : -36,
     }));
 
+    const method = config.aggregation || "Sum";
     const data = Object.entries(pivot).map(([entity, byAxis]) => {
       const row = { _entity: entity };
-      for (const axis of sortedAxes) row[axis] = byAxis[axis] ?? 0;
+      for (const axis of sortedAxes) row[axis] = byAxis[axis] ? aggregate(byAxis[axis], method) : 0;
       return row;
     });
 

@@ -1,5 +1,6 @@
 import { useMemo, useEffect } from "react";
 import { ResponsiveBullet } from "@nivo/bullet";
+import { aggregate } from "../aggregate";
 
 /**
  * Bullet Chart Plugin
@@ -26,18 +27,20 @@ export default function Bullet({ config, sigmaData, setLoading, onSelect, theme 
       const label = String(labelCol[i] ?? "Other");
       const val = Number(valCol[i]) || 0;
       const target = targetCol ? (Number(targetCol[i]) || 0) : null;
-      if (!agg[label]) agg[label] = { sum: 0, target: null, count: 0 };
-      agg[label].sum += val;
+      if (!agg[label]) agg[label] = { vals: [], target: null, count: 0 };
+      agg[label].vals.push(val);
       agg[label].count++;
       if (target != null && target > 0) agg[label].target = target;
     }
 
-    const maxVal = Math.max(...Object.values(agg).map((v) => Math.max(v.sum, v.target || 0)));
+    const method = config.aggregation || "Sum";
 
-    return Object.entries(agg).map(([label, { sum, target }]) => ({
+    const maxVal = Math.max(...Object.values(agg).map((v) => Math.max(aggregate(v.vals, method), v.target || 0)));
+
+    return Object.entries(agg).map(([label, { vals, target }]) => ({
       id: label,
       ranges: [0, maxVal * 0.5, maxVal * 0.8, maxVal * 1.1],
-      measures: [sum],
+      measures: [aggregate(vals, method)],
       markers: target != null ? [target] : [],
     }));
   }, [sigmaData, config.dimension1, config.dimension2, config.measure]);

@@ -10,6 +10,7 @@ import {
   usePluginStyle,
 } from "@sigmacomputing/plugin";
 import { buildTheme } from "./theme";
+import { AGG_METHODS } from "./aggregate";
 import { CHART_TYPES, CHART_COMPONENTS } from "./charts";
 
 // Dynamic sidebar labels per chart type
@@ -59,6 +60,12 @@ const NEEDS_MEASURE2 = new Set(["Voronoi", "Hexbin"]);
 // Charts where dimension1 is OPTIONAL (don't block rendering on it)
 const NO_DIM1 = new Set(["Histogram", "Hexbin"]);
 
+// Distribution/raw charts that plot EVERY row — aggregation doesn't apply,
+// so hide the Aggregation control for them.
+const HIDE_AGG = new Set([
+  "SwarmPlot", "BoxPlot", "Voronoi", "Histogram", "Ridgeline", "Hexbin",
+]);
+
 export default function App() {
   const [loading, setLoading] = useLoadingState(true);
   const config = useConfig();
@@ -102,6 +109,12 @@ export default function App() {
       ? [{ type: "column", name: "measure2", label: "Value Y (numeric)",
            source: "source", allowMultiple: false,
            allowedTypes: ["number", "integer"] }]
+      : []),
+
+    // Aggregation — how to combine measure values within each group
+    ...(!HIDE_AGG.has(chartType)
+      ? [{ type: "dropdown", name: "aggregation", label: "Aggregation",
+           values: AGG_METHODS, defaultValue: "Sum" }]
       : []),
 
     // Display options

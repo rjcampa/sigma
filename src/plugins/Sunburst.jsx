@@ -1,5 +1,6 @@
 import { useMemo, useEffect } from "react";
 import { ResponsiveSunburst } from "@nivo/sunburst";
+import { aggregate } from "../aggregate";
 
 /**
  * Sunburst Plugin
@@ -33,11 +34,13 @@ export default function Sunburst({ config, sigmaData, setLoading, onSelect, them
       if (subcats) {
         const sub = String(subcats[i] ?? "Other");
         if (!tree[cat]) tree[cat] = {};
-        tree[cat][sub] = (tree[cat][sub] || 0) + val;
+        (tree[cat][sub] ||= []).push(val);
       } else {
-        tree[cat] = (tree[cat] || 0) + val;
+        (tree[cat] ||= []).push(val);
       }
     }
+
+    const method = config.aggregation || "Sum";
 
     if (subcats) {
       return {
@@ -46,7 +49,7 @@ export default function Sunburst({ config, sigmaData, setLoading, onSelect, them
           id: cat,
           children: Object.entries(subs).map(([sub, val]) => ({
             id: sub,
-            value: val,
+            value: aggregate(val, method),
           })),
         })),
       };
@@ -55,11 +58,11 @@ export default function Sunburst({ config, sigmaData, setLoading, onSelect, them
         id: config.title || "root",
         children: Object.entries(tree).map(([cat, val]) => ({
           id: cat,
-          value: val,
+          value: aggregate(val, method),
         })),
       };
     }
-  }, [sigmaData, config.dimension1, config.dimension2, config.measure, config.title]);
+  }, [sigmaData, config.dimension1, config.dimension2, config.measure, config.title, config.aggregation]);
 
   useEffect(() => {
     if (treeData) setLoading(false);

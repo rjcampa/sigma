@@ -1,5 +1,6 @@
 import { useMemo, useEffect } from "react";
 import { ResponsiveIcicle } from "@nivo/icicle";
+import { aggregate } from "../aggregate";
 
 /**
  * Icicle Plugin
@@ -30,24 +31,25 @@ export default function Icicle({ config, sigmaData, setLoading, onSelect, theme 
       if (subcats) {
         const sub = String(subcats[i] ?? "Other");
         if (!tree[cat]) tree[cat] = {};
-        tree[cat][sub] = (tree[cat][sub] || 0) + val;
+        (tree[cat][sub] ||= []).push(val);
       } else {
-        tree[cat] = (tree[cat] || 0) + val;
+        (tree[cat] ||= []).push(val);
       }
     }
 
+    const method = config.aggregation || "Sum";
     if (subcats) {
       return {
         id: config.title || "root",
         children: Object.entries(tree).map(([cat, subs]) => ({
           id: cat,
-          children: Object.entries(subs).map(([sub, val]) => ({ id: sub, value: val })),
+          children: Object.entries(subs).map(([sub, val]) => ({ id: sub, value: aggregate(val, method) })),
         })),
       };
     }
     return {
       id: config.title || "root",
-      children: Object.entries(tree).map(([cat, val]) => ({ id: cat, value: val })),
+      children: Object.entries(tree).map(([cat, val]) => ({ id: cat, value: aggregate(val, method) })),
     };
   }, [sigmaData, config.dimension1, config.dimension2, config.measure, config.title]);
 

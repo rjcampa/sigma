@@ -1,5 +1,6 @@
 import { useMemo, useEffect } from "react";
 import { ResponsiveHeatMap } from "@nivo/heatmap";
+import { aggregate } from "../aggregate";
 
 /**
  * Heatmap Plugin
@@ -31,18 +32,19 @@ export default function Heatmap({ config, sigmaData, setLoading, onSelect, theme
       const val = Number(valCol[i]) || 0;
 
       if (!matrix[row]) matrix[row] = {};
-      matrix[row][col] = (matrix[row][col] || 0) + val;
+      (matrix[row][col] ||= []).push(val);
       allCols.add(col);
     }
 
     // Convert to Nivo format: [{ id: rowLabel, data: [{ x: colLabel, y: value }, ...] }]
     const sortedCols = [...allCols].sort();
+    const method = config.aggregation || "Sum";
 
     return Object.entries(matrix).map(([rowLabel, cols]) => ({
       id: rowLabel,
       data: sortedCols.map((colLabel) => ({
         x: colLabel,
-        y: cols[colLabel] ?? null,
+        y: cols[colLabel] ? aggregate(cols[colLabel], method) : null,
       })),
     }));
   }, [sigmaData, config.dimension1, config.dimension2, config.measure]);

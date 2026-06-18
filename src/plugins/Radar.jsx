@@ -1,5 +1,6 @@
 import { useMemo, useEffect } from "react";
 import { ResponsiveRadar } from "@nivo/radar";
+import { aggregate } from "../aggregate";
 
 /**
  * Radar / Spider Chart Plugin
@@ -32,14 +33,15 @@ export default function Radar({ config, sigmaData, setLoading, onSelect, theme }
       const metric = String(metricCol[i] ?? "Other");
       const val = Number(valCol[i]) || 0;
       if (!map[metric]) map[metric] = {};
-      map[metric][entity] = (map[metric][entity] || 0) + val;
+      (map[metric][entity] ||= []).push(val);
       entities.add(entity);
     }
 
+    const method = config.aggregation || "Sum";
     const keys = [...entities];
     const data = Object.entries(map).map(([metric, vals]) => ({
       metric,
-      ...Object.fromEntries(keys.map((e) => [e, vals[e] || 0])),
+      ...Object.fromEntries(keys.map((e) => [e, vals[e] ? aggregate(vals[e], method) : 0])),
     }));
 
     return { radarData: data, radarKeys: keys };

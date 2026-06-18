@@ -1,5 +1,6 @@
 import { useMemo, useEffect } from "react";
 import { ResponsiveTreeMap } from "@nivo/treemap";
+import { aggregate } from "../aggregate";
 
 /**
  * Treemap Plugin
@@ -35,11 +36,13 @@ export default function Treemap({ config, sigmaData, setLoading, onSelect, theme
       if (subcats) {
         const sub = String(subcats[i] ?? "Other");
         if (!tree[cat]) tree[cat] = {};
-        tree[cat][sub] = (tree[cat][sub] || 0) + val;
+        (tree[cat][sub] ||= []).push(val);
       } else {
-        tree[cat] = (tree[cat] || 0) + val;
+        (tree[cat] ||= []).push(val);
       }
     }
+
+    const method = config.aggregation || "Sum";
 
     // Convert to Nivo's tree format
     if (subcats) {
@@ -49,7 +52,7 @@ export default function Treemap({ config, sigmaData, setLoading, onSelect, theme
           name: cat,
           children: Object.entries(subs).map(([sub, val]) => ({
             name: sub,
-            value: val,
+            value: aggregate(val, method),
           })),
         })),
       };
@@ -58,11 +61,11 @@ export default function Treemap({ config, sigmaData, setLoading, onSelect, theme
         name: config.title || "root",
         children: Object.entries(tree).map(([cat, val]) => ({
           name: cat,
-          value: val,
+          value: aggregate(val, method),
         })),
       };
     }
-  }, [sigmaData, config.dimension1, config.dimension2, config.measure, config.title]);
+  }, [sigmaData, config.dimension1, config.dimension2, config.measure, config.title, config.aggregation]);
 
   useEffect(() => {
     if (treeData) setLoading(false);

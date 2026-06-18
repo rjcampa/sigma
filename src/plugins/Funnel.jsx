@@ -1,5 +1,6 @@
 import { useMemo, useEffect } from "react";
 import { ResponsiveFunnel } from "@nivo/funnel";
+import { aggregate } from "../aggregate";
 
 /**
  * Funnel Plugin
@@ -31,17 +32,19 @@ export default function Funnel({ config, sigmaData, setLoading, onSelect, theme 
       const val = Number(valCol[i]) || 0;
 
       if (seen.has(label)) {
-        seen.get(label).value += val;
+        seen.get(label).values.push(val);
       } else {
-        seen.set(label, { value: val, order: order++ });
+        seen.set(label, { values: [val], order: order++ });
       }
     }
 
+    const method = config.aggregation || "Sum";
+
     return [...seen.entries()]
       .sort((a, b) => a[1].order - b[1].order)
-      .map(([label, { value }]) => ({
+      .map(([label, { values }]) => ({
         id: label,
-        value,
+        value: aggregate(values, method),
         label,
       }));
   }, [sigmaData, config.dimension1, config.measure]);

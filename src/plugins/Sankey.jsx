@@ -1,5 +1,6 @@
 import { useMemo, useEffect } from "react";
 import { ResponsiveSankey } from "@nivo/sankey";
+import { aggregate } from "../aggregate";
 
 /**
  * Sankey Plugin
@@ -32,15 +33,21 @@ export default function Sankey({ config, sigmaData, setLoading, onSelect, theme 
       nodeSet.add(src);
       nodeSet.add(tgt);
       const key = `${src}\0${tgt}`;
-      if (!linkMap[key]) linkMap[key] = { source: src, target: tgt, value: 0 };
-      linkMap[key].value += val;
+      if (!linkMap[key]) linkMap[key] = { source: src, target: tgt, values: [] };
+      linkMap[key].values.push(val);
     }
 
     if (!nodeSet.size) return null;
 
+    const method = config.aggregation || "Sum";
+
     return {
       nodes: [...nodeSet].map((id) => ({ id })),
-      links: Object.values(linkMap),
+      links: Object.values(linkMap).map(({ source, target, values }) => ({
+        source,
+        target,
+        value: aggregate(values, method),
+      })),
     };
   }, [sigmaData, config.dimension1, config.dimension2, config.measure]);
 

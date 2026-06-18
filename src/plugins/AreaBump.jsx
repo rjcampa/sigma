@@ -1,5 +1,6 @@
 import { useMemo, useEffect } from "react";
 import { ResponsiveAreaBump } from "@nivo/bump";
+import { aggregate } from "../aggregate";
 
 /**
  * Area Bump Plugin (ranked streamgraph)
@@ -29,14 +30,15 @@ export default function AreaBump({ config, sigmaData, setLoading, onSelect, them
       const time = String(timeCol[i] ?? "");
       const val = Math.abs(Number(valCol[i]) || 0);
       if (!map[entity]) map[entity] = {};
-      map[entity][time] = (map[entity][time] || 0) + val;
+      (map[entity][time] ||= []).push(val);
       times.add(time);
     }
 
+    const method = config.aggregation || "Sum";
     const sortedTimes = [...times].sort();
     return Object.entries(map).map(([entity, byTime]) => ({
       id: entity,
-      data: sortedTimes.map((t) => ({ x: t, y: byTime[t] || 0 })),
+      data: sortedTimes.map((t) => ({ x: t, y: byTime[t] ? aggregate(byTime[t], method) : 0 })),
     }));
   }, [sigmaData, config.dimension1, config.dimension2, config.measure]);
 

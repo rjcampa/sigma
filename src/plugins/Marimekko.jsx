@@ -1,5 +1,6 @@
 import { useMemo, useEffect } from "react";
 import { ResponsiveMarimekko } from "@nivo/marimekko";
+import { aggregate } from "../aggregate";
 
 /**
  * Marimekko / Mosaic Plugin
@@ -29,18 +30,22 @@ export default function Marimekko({ config, sigmaData, setLoading, onSelect, the
       const sub = String(subCol[i] ?? "Other");
       const val = Number(valCol[i]) || 0;
       if (!map[cat]) map[cat] = {};
-      map[cat][sub] = (map[cat][sub] || 0) + val;
+      (map[cat][sub] ||= []).push(val);
       subs.add(sub);
     }
 
+    const method = config.aggregation || "Sum";
     const subList = [...subs].sort();
     const dims = subList.map((s) => ({ id: s, value: s }));
     const data = Object.entries(map).map(([cat, vals]) => {
-      const total = Object.values(vals).reduce((s, v) => s + v, 0);
+      const aggregated = Object.fromEntries(
+        subList.map((s) => [s, vals[s] ? aggregate(vals[s], method) : 0])
+      );
+      const total = Object.values(aggregated).reduce((s, v) => s + v, 0);
       return {
         id: cat,
         _total: total,
-        ...Object.fromEntries(subList.map((s) => [s, vals[s] || 0])),
+        ...aggregated,
       };
     });
 

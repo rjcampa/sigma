@@ -1,5 +1,6 @@
 import { useMemo, useEffect } from "react";
 import { ResponsiveRadialBar } from "@nivo/radial-bar";
+import { aggregate } from "../aggregate";
 
 /**
  * Radial Bar Plugin
@@ -20,6 +21,8 @@ export default function RadialBar({ config, sigmaData, setLoading, onSelect, the
     const subCol = config.dimension2 ? sigmaData[config.dimension2] : null;
     if (!labelCol || !valCol) return [];
 
+    const method = config.aggregation || "Sum";
+
     if (subCol) {
       // Multi-segment: { category: { sub: value } }
       const map = {};
@@ -28,11 +31,11 @@ export default function RadialBar({ config, sigmaData, setLoading, onSelect, the
         const sub = String(subCol[i] ?? "Other");
         const val = Math.abs(Number(valCol[i]) || 0);
         if (!map[cat]) map[cat] = {};
-        map[cat][sub] = (map[cat][sub] || 0) + val;
+        (map[cat][sub] ||= []).push(val);
       }
       return Object.entries(map).map(([cat, subs]) => ({
         id: cat,
-        data: Object.entries(subs).map(([sub, value]) => ({ x: sub, y: value })),
+        data: Object.entries(subs).map(([sub, value]) => ({ x: sub, y: aggregate(value, method) })),
       }));
     } else {
       // Single-segment per category
@@ -40,11 +43,11 @@ export default function RadialBar({ config, sigmaData, setLoading, onSelect, the
       for (let i = 0; i < labelCol.length; i++) {
         const label = String(labelCol[i] ?? "Other");
         const val = Math.abs(Number(valCol[i]) || 0);
-        agg[label] = (agg[label] || 0) + val;
+        (agg[label] ||= []).push(val);
       }
       return Object.entries(agg).map(([label, value]) => ({
         id: label,
-        data: [{ x: "value", y: value }],
+        data: [{ x: "value", y: aggregate(value, method) }],
       }));
     }
   }, [sigmaData, config.dimension1, config.dimension2, config.measure]);
