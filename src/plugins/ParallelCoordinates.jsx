@@ -52,13 +52,14 @@ export default function ParallelCoordinates({ config, sigmaData, setLoading, the
 
     const method = config.aggregation || "Sum";
     const data = Object.entries(pivot).map(([entity, byAxis]) => {
-      const row = { _entity: entity };
+      // `id` gives each line a stable React key (entities are unique).
+      const row = { id: entity };
       for (const axis of sortedAxes) row[axis] = byAxis[axis] ? aggregate(byAxis[axis], method) : 0;
       return row;
     });
 
     return { data, variables };
-  }, [sigmaData, config.dimension1, config.dimension2, config.measure]);
+  }, [sigmaData, config.dimension1, config.dimension2, config.measure, config.aggregation]);
 
   useEffect(() => {
     if (data.length > 0) setLoading(false);

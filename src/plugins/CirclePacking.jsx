@@ -40,13 +40,18 @@ export default function CirclePacking({ config, sigmaData, setLoading, onSelect,
 
     const method = config.aggregation || "Sum";
 
+    // Unique node ids (parent child) so a sub-label repeated under different
+    // parents doesn't collide as a React key; `name` carries the display label.
     if (subcats) {
       return {
         id: config.title || "root",
+        name: config.title || "root",
         children: Object.entries(tree).map(([cat, subs]) => ({
           id: cat,
+          name: cat,
           children: Object.entries(subs).map(([sub, val]) => ({
-            id: sub,
+            id: `${cat} ${sub}`,
+            name: sub,
             value: aggregate(val, method),
           })),
         })),
@@ -54,13 +59,15 @@ export default function CirclePacking({ config, sigmaData, setLoading, onSelect,
     } else {
       return {
         id: config.title || "root",
+        name: config.title || "root",
         children: Object.entries(tree).map(([cat, val]) => ({
           id: cat,
+          name: cat,
           value: aggregate(val, method),
         })),
       };
     }
-  }, [sigmaData, config.dimension1, config.dimension2, config.measure, config.title]);
+  }, [sigmaData, config.dimension1, config.dimension2, config.measure, config.title, config.aggregation]);
 
   useEffect(() => {
     if (treeData) setLoading(false);
@@ -100,6 +107,7 @@ export default function CirclePacking({ config, sigmaData, setLoading, onSelect,
           colors={{ scheme: schemeMap[config.colorScheme] || "blues" }}
           childColor={{ from: "color", modifiers: [["brighter", 0.4]] }}
           padding={4}
+          label={(node) => node.data?.name ?? node.id}
           enableLabels={config.showLabels ?? true}
           labelsFilter={(label) => label.node.depth <= 2}
           labelsSkipRadius={20}
@@ -108,7 +116,7 @@ export default function CirclePacking({ config, sigmaData, setLoading, onSelect,
           borderColor={{ from: "color", modifiers: [["darker", 0.5]] }}
           animate={true}
           motionConfig="gentle"
-          tooltip={({ id, value, color }) => (
+          tooltip={({ id, data, value, color }) => (
             <div style={{
               background: "white", padding: "8px 12px", borderRadius: 4,
               boxShadow: "0 2px 8px rgba(0,0,0,0.15)", fontSize: 13,
@@ -119,12 +127,12 @@ export default function CirclePacking({ config, sigmaData, setLoading, onSelect,
                 backgroundColor: color, borderRadius: "50%",
               }} />
               <span>
-                <strong>{id}</strong>: {value.toLocaleString()}
+                <strong>{data?.name ?? id}</strong>: {value.toLocaleString()}
               </span>
             </div>
           )}
           onClick={(node) => {
-            if (onSelect && node.id) onSelect(String(node.id));
+            if (onSelect && node.id) onSelect(String(node.data?.name ?? node.id));
           }}
         />
       </div>
