@@ -1,5 +1,6 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
+import "@fontsource-variable/inter"; // bundled, self-hosted UI font (CSP-safe)
 import DevPreview from "./DevPreview";
 
 // `?demo` renders a standalone preview with mock data (no Sigma host required).

@@ -47,7 +47,7 @@ export default function Histogram({ config, sigmaData, columns, setLoading, them
   const render = useCallback((width, height) => ({
     width, height,
     marginLeft: 54, marginRight: 16, marginTop: 16, marginBottom: 44,
-    style: { background: "transparent", color: text, fontFamily: "sans-serif" },
+    style: { background: "transparent", color: text, fontFamily: "'Inter Variable', system-ui, sans-serif" },
     x: { label: measureName, labelAnchor: "center" },
     y: { label: "Count", grid: true },
     ...(hasGroup ? { color: { legend: true, scheme } } : {}),
@@ -72,7 +72,7 @@ export default function Histogram({ config, sigmaData, columns, setLoading, them
       {config.title && (
         <div style={{
           textAlign: "center", padding: "8px 0", fontSize: 16,
-          fontWeight: 600, fontFamily: "sans-serif", color: text, flexShrink: 0,
+          fontWeight: 600, fontFamily: "'Inter Variable', system-ui, sans-serif", color: text, flexShrink: 0,
         }}>
           {config.title}
         </div>

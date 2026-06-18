@@ -5,6 +5,10 @@
 // luminance, and expose a ready-to-spread Nivo `theme` so every chart can flip
 // its axis/label/tooltip/text colors with a single `theme={theme.nivo}` prop.
 
+// Shared UI font stack (Inter is bundled & self-hosted via @fontsource).
+export const FONT =
+  "'Inter Variable', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif";
+
 const LIGHT = {
   background: "#ffffff",
   text: "#333333",
@@ -92,16 +96,34 @@ export function buildTheme({ appearance = "Auto", pluginBackground, accent } = {
     // (e.g. punched-out points) still resolve to the right color.
     nivo: {
       background,
-      text: { fill: base.text },
+      fontFamily: FONT,
+      fontSize: 12,
+      text: { fontFamily: FONT, fontSize: 12, fill: base.text },
       axis: {
-        domain: { line: { stroke: base.border } },
-        ticks: { line: { stroke: base.border }, text: { fill: base.muted } },
-        legend: { text: { fill: base.text } },
+        domain: { line: { stroke: base.border, strokeWidth: 1 } },
+        ticks: {
+          line: { stroke: base.border, strokeWidth: 1 },
+          text: { fontFamily: FONT, fontSize: 11, fill: base.muted },
+        },
+        legend: { text: { fontFamily: FONT, fontSize: 12, fontWeight: 600, fill: base.text } },
       },
-      grid: { line: { stroke: base.border } },
-      legends: { text: { fill: base.text } },
-      labels: { text: { fill: base.text } },
-      tooltip: { container: { background: base.tooltipBg, color: base.text } },
+      grid: { line: { stroke: base.border, strokeWidth: 1, strokeDasharray: "2 4" } },
+      legends: { text: { fontFamily: FONT, fontSize: 11, fill: base.muted } },
+      labels: { text: { fontFamily: FONT, fontSize: 11, fontWeight: 600 } },
+      tooltip: {
+        container: {
+          background: base.tooltipBg,
+          color: base.text,
+          fontFamily: FONT,
+          fontSize: 12,
+          borderRadius: 8,
+          border: `1px solid ${base.border}`,
+          boxShadow: dark
+            ? "0 6px 20px rgba(0,0,0,0.5)"
+            : "0 6px 20px rgba(15,23,42,0.14)",
+          padding: "6px 10px",
+        },
+      },
     },
   };
 }

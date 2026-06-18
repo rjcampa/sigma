@@ -39,7 +39,7 @@ export default function Ridgeline({ config, sigmaData, columns, setLoading, them
   const render = useCallback((width, height) => ({
     width, height,
     marginLeft: 96, marginRight: 20, marginTop: 16, marginBottom: 40,
-    style: { background: "transparent", color: text, fontFamily: "sans-serif" },
+    style: { background: "transparent", color: text, fontFamily: "'Inter Variable', system-ui, sans-serif" },
     x: { label: measureName },
     y: { axis: null },
     fy: { label: null },
@@ -65,7 +65,7 @@ export default function Ridgeline({ config, sigmaData, columns, setLoading, them
       {config.title && (
         <div style={{
           textAlign: "center", padding: "8px 0", fontSize: 16,
-          fontWeight: 600, fontFamily: "sans-serif", color: text, flexShrink: 0,
+          fontWeight: 600, fontFamily: "'Inter Variable', system-ui, sans-serif", color: text, flexShrink: 0,
         }}>
           {config.title}
         </div>

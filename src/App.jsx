@@ -263,7 +263,7 @@ export default function App() {
         <Suspense fallback={
           <div style={{
             display: "flex", alignItems: "center", justifyContent: "center",
-            height: "100%", fontFamily: "sans-serif", fontSize: 13,
+            height: "100%", fontFamily: "'Inter Variable', system-ui, sans-serif", fontSize: 13,
             color: theme.muted, background: theme.background,
           }}>
             Loading chart…
@@ -283,7 +283,7 @@ const styles = {
     alignItems: "center",
     gap: 8,
     padding: "6px 12px",
-    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+    fontFamily: "'Inter Variable', system-ui, -apple-system, sans-serif",
     fontSize: 12,
     background: "#eef4fb",
     borderBottom: "1px solid #d6e3f3",
@@ -320,7 +320,7 @@ const styles = {
     justifyContent: "center",
     height: "100%",
     padding: 32,
-    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+    fontFamily: "'Inter Variable', system-ui, -apple-system, sans-serif",
     color: "#555",
     textAlign: "center",
     backgroundColor: "#fafafa",

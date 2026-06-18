@@ -41,7 +41,7 @@ export default function Hexbin({ config, sigmaData, columns, setLoading, theme }
   const render = useCallback((width, height) => ({
     width, height,
     marginLeft: 54, marginRight: 16, marginTop: 16, marginBottom: 44,
-    style: { background: "transparent", color: text, fontFamily: "sans-serif" },
+    style: { background: "transparent", color: text, fontFamily: "'Inter Variable', system-ui, sans-serif" },
     x: { label: xName, grid: true },
     y: { label: yName, grid: true },
     color: { scheme, legend: true, label: "Count" },
@@ -71,7 +71,7 @@ export default function Hexbin({ config, sigmaData, columns, setLoading, theme }
       {config.title && (
         <div style={{
           textAlign: "center", padding: "8px 0", fontSize: 16,
-          fontWeight: 600, fontFamily: "sans-serif", color: text, flexShrink: 0,
+          fontWeight: 600, fontFamily: "'Inter Variable', system-ui, sans-serif", color: text, flexShrink: 0,
         }}>
           {config.title}
         </div>
