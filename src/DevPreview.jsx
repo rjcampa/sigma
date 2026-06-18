@@ -28,8 +28,12 @@ function makeMockData() {
   const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun"];
   const start = new Date("2024-01-01").getTime();
 
+  const cohorts = ["2024-01", "2024-02", "2024-03", "2024-04", "2024-05", "2024-06"];
+
   const cat = [], sub = [], time = [], date = [], value = [], value2 = [];
-  const from = [], to = []; // same-set flow (region → region) for Chord
+  const from = [], to = [];   // same-set flow (region → region) for Chord
+  const delta = [];           // signed change for Waterfall
+  const cohort = [], period = [], users = []; // for Cohort Retention
   for (let i = 0; i < 240; i++) {
     cat.push(cats[i % cats.length]);
     sub.push(subs[i % subs.length]);
@@ -37,14 +41,23 @@ function makeMockData() {
     date.push(new Date(start + Math.floor(rand() * 360) * 86400000).toISOString().slice(0, 10));
     value.push(Math.round(20 + rand() * 180));
     value2.push(Math.round(10 + rand() * 120));
+    // signed deltas, biased by region so the waterfall has clear ups & downs
+    delta.push(Math.round((rand() - 0.42) * 120) + ((i % cats.length) - 2) * 18);
 
     const a = Math.floor(rand() * cats.length);
     let b = Math.floor(rand() * cats.length);
     if (b === a) b = (a + 1) % cats.length; // avoid self-loops
     from.push(cats[a]);
     to.push(cats[b]);
+
+    // cohort grid: 6 cohorts × periods 0..5, users decaying ~28%/period
+    const ci = Math.floor(i / 40);          // 40 rows per cohort
+    const p = i % 6;                         // period 0..5
+    cohort.push(cohorts[ci]);
+    period.push(p);
+    users.push(Math.round(200 * Math.pow(0.72, p) * (0.85 + rand() * 0.3)));
   }
-  return { cat, sub, time, date, value, value2, from, to };
+  return { cat, sub, time, date, value, value2, from, to, delta, cohort, period, users };
 }
 
 const MOCK = makeMockData();
@@ -58,6 +71,10 @@ const COLUMNS = {
   value2: { id: "value2", name: "Cost", columnType: "number" },
   from: { id: "from", name: "Region (from)", columnType: "text" },
   to: { id: "to", name: "Region (to)", columnType: "text" },
+  delta: { id: "delta", name: "Net change", columnType: "number" },
+  cohort: { id: "cohort", name: "Cohort", columnType: "text" },
+  period: { id: "period", name: "Period", columnType: "integer" },
+  users: { id: "users", name: "Users", columnType: "number" },
 };
 
 const SCHEMES = ["blues", "greens", "reds", "oranges", "purples", "blue_green", "yellow_green"];
@@ -83,6 +100,14 @@ function demoConfigFor(chartType) {
       return { measure: "value", measure2: "value2" };
     case "Bullet":
       return { dimension1: "cat", dimension2: "value2", measure: "value" };
+    case "KPI":
+      return { dimension1: "time", measure: "value" };
+    case "Gauge":
+      return { measure: "value2", dimension2: "value" }; // value(<target) → partial fill
+    case "Waterfall":
+      return { dimension1: "cat", measure: "delta" };
+    case "CohortRetention":
+      return { dimension1: "cohort", dimension2: "period", measure: "users" };
     default:
       return { dimension1: "cat", dimension2: "sub", measure: "value" };
   }

@@ -26,6 +26,8 @@ const DIM1_LABELS = {
   Voronoi: "Point label", AreaBump: "Series / Entity",
   Histogram: "Group / Color (optional)", Ridgeline: "Group (ridge)",
   Hexbin: "Label (optional)", ForceGraph: "Source node",
+  KPI: "Trend period (optional)", Gauge: "Label (optional)",
+  Waterfall: "Step / Category", CohortRetention: "Cohort (row)",
 };
 
 const DIM2_LABELS = {
@@ -37,7 +39,8 @@ const DIM2_LABELS = {
   Tree: "Sub-category (child)", Icicle: "Sub-category (child)",
   Network: "Target node", ParallelCoordinates: "Axis / Variable",
   BoxPlot: "Sub-group (optional)", AreaBump: "Time period",
-  ForceGraph: "Target node",
+  ForceGraph: "Target node", Gauge: "Target (optional)",
+  CohortRetention: "Period since start",
 };
 
 // Primary-measure label overrides (defaults to "Value (numeric)")
@@ -45,20 +48,21 @@ const MEASURE_LABELS = {
   Voronoi: "Value X (numeric)", BoxPlot: "Value (observation)",
   Network: "Relationship weight", Histogram: "Value (to bin)",
   Ridgeline: "Value (distribution)", Hexbin: "Value X (numeric)",
-  ForceGraph: "Relationship weight",
+  ForceGraph: "Relationship weight", KPI: "Metric value", Gauge: "Value",
+  Waterfall: "Change (+/−)", CohortRetention: "Users / Count",
 };
 
 // Charts that do NOT use dimension2 at all
 const HIDE_DIM2 = new Set([
   "Calendar", "Funnel", "Pie", "Waffle", "SwarmPlot", "Voronoi",
-  "Histogram", "Ridgeline", "Hexbin",
+  "Histogram", "Ridgeline", "Hexbin", "KPI", "Waterfall",
 ]);
 
 // Charts that need a SECOND numeric measure (an X/Y pair)
 const NEEDS_MEASURE2 = new Set(["Voronoi", "Hexbin"]);
 
 // Charts where dimension1 is OPTIONAL (don't block rendering on it)
-const NO_DIM1 = new Set(["Histogram", "Hexbin"]);
+const NO_DIM1 = new Set(["Histogram", "Hexbin", "KPI", "Gauge"]);
 
 // Distribution/raw charts that plot EVERY row — aggregation doesn't apply,
 // so hide the Aggregation control for them.
@@ -93,7 +97,7 @@ export default function App() {
       ? [{ type: "column", name: "dimension2",
            label: DIM2_LABELS[chartType] || "Sub-category",
            source: "source", allowMultiple: false,
-           ...(chartType === "Bullet"
+           ...(["Bullet", "Gauge"].includes(chartType)
              ? { allowedTypes: ["number", "integer"] }
              : {}) }]
       : []),

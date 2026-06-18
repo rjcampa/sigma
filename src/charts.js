@@ -26,6 +26,8 @@ export const CHART_TYPES = [
   "SwarmPlot", "BoxPlot", "Voronoi",
   // Statistical / Density (Observable Plot)
   "Histogram", "Ridgeline", "Hexbin",
+  // KPI / Business
+  "KPI", "Gauge", "Waterfall", "CohortRetention",
 ];
 
 export const CHART_COMPONENTS = {
@@ -57,4 +59,8 @@ export const CHART_COMPONENTS = {
   Histogram: lazy(() => import("./plugins/Histogram")),
   Ridgeline: lazy(() => import("./plugins/Ridgeline")),
   Hexbin: lazy(() => import("./plugins/Hexbin")),
+  KPI: lazy(() => import("./plugins/KPI")),
+  Gauge: lazy(() => import("./plugins/Gauge")),
+  Waterfall: lazy(() => import("./plugins/Waterfall")),
+  CohortRetention: lazy(() => import("./plugins/CohortRetention")),
 };
