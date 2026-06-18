@@ -14,7 +14,7 @@ import { ResponsiveSwarmPlot } from "@nivo/swarmplot";
  *
  * Each row becomes a dot. No aggregation — shows individual data points.
  */
-export default function SwarmPlot({ config, sigmaData, setLoading, onSelect }) {
+export default function SwarmPlot({ config, sigmaData, setLoading, onSelect, theme }) {
   const { swarmData, groups } = useMemo(() => {
     const groupCol = sigmaData[config.dimension1];
     const valCol = sigmaData[config.measure];
@@ -39,7 +39,7 @@ export default function SwarmPlot({ config, sigmaData, setLoading, onSelect }) {
 
   if (!swarmData.length) {
     return (
-      <div style={{ padding: 20, color: "#999", textAlign: "center" }}>
+      <div style={{ padding: 20, color: theme?.muted ?? "#999", textAlign: "center" }}>
         No data to display. Check column mappings.
       </div>
     );
@@ -55,7 +55,7 @@ export default function SwarmPlot({ config, sigmaData, setLoading, onSelect }) {
       {config.title && (
         <div style={{
           textAlign: "center", padding: "8px 0", fontSize: 16,
-          fontWeight: 600, fontFamily: "sans-serif", color: "#333", flexShrink: 0,
+          fontWeight: 600, fontFamily: "sans-serif", color: theme?.text ?? "#333", flexShrink: 0,
         }}>
           {config.title}
         </div>
@@ -63,6 +63,7 @@ export default function SwarmPlot({ config, sigmaData, setLoading, onSelect }) {
       <div style={{ flex: 1, minHeight: 0 }}>
         <ResponsiveSwarmPlot
           data={swarmData}
+          theme={theme?.nivo}
           groups={groups}
           value="value"
           valueScale={{ type: "linear", min: "auto", max: "auto" }}

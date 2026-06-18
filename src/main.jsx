@@ -1,12 +1,32 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import { client, SigmaClientProvider } from "@sigmacomputing/plugin";
-import App from "./App";
+import DevPreview from "./DevPreview";
 
-ReactDOM.createRoot(document.getElementById("root")).render(
-  <React.StrictMode>
-    <SigmaClientProvider client={client}>
-      <App />
-    </SigmaClientProvider>
-  </React.StrictMode>
-);
+// `?demo` renders a standalone preview with mock data (no Sigma host required).
+//
+// IMPORTANT: @sigmacomputing/plugin exports a pre-initialized `client` singleton
+// that parses Sigma's init payload AT IMPORT TIME — outside a Sigma iframe that
+// parse throws ("Unexpected end of JSON input") and blanks the page. So we only
+// import the plugin package (and App) in the non-demo branch, via dynamic import.
+const root = ReactDOM.createRoot(document.getElementById("root"));
+const isDemo = new URLSearchParams(window.location.search).has("demo");
+
+if (isDemo) {
+  root.render(
+    <React.StrictMode>
+      <DevPreview />
+    </React.StrictMode>
+  );
+} else {
+  Promise.all([import("@sigmacomputing/plugin"), import("./App")]).then(
+    ([{ client, SigmaClientProvider }, { default: App }]) => {
+      root.render(
+        <React.StrictMode>
+          <SigmaClientProvider client={client}>
+            <App />
+          </SigmaClientProvider>
+        </React.StrictMode>
+      );
+    }
+  );
+}

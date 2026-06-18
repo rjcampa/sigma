@@ -16,7 +16,7 @@ import { ResponsiveFunnel } from "@nivo/funnel";
  * If your data has duplicate stage labels they are aggregated (summed).
  * Sort your source data in Sigma to control the stage order.
  */
-export default function Funnel({ config, sigmaData, setLoading, onSelect }) {
+export default function Funnel({ config, sigmaData, setLoading, onSelect, theme }) {
   const funnelData = useMemo(() => {
     const labelCol = sigmaData[config.dimension1];
     const valCol = sigmaData[config.measure];
@@ -52,7 +52,7 @@ export default function Funnel({ config, sigmaData, setLoading, onSelect }) {
 
   if (!funnelData.length) {
     return (
-      <div style={{ padding: 20, color: "#999", textAlign: "center" }}>
+      <div style={{ padding: 20, color: theme?.muted ?? "#999", textAlign: "center" }}>
         No data to display. Check column mappings.
       </div>
     );
@@ -73,7 +73,7 @@ export default function Funnel({ config, sigmaData, setLoading, onSelect }) {
       {config.title && (
         <div style={{
           textAlign: "center", padding: "8px 0", fontSize: 16,
-          fontWeight: 600, fontFamily: "sans-serif", color: "#333",
+          fontWeight: 600, fontFamily: "sans-serif", color: theme?.text ?? "#333",
           flexShrink: 0,
         }}>
           {config.title}
@@ -82,6 +82,7 @@ export default function Funnel({ config, sigmaData, setLoading, onSelect }) {
       <div style={{ flex: 1, minHeight: 0 }}>
         <ResponsiveFunnel
           data={funnelData}
+          theme={theme?.nivo}
           margin={{ top: 20, right: 20, bottom: 20, left: 20 }}
           valueFormat=">,.0f"
           colors={{ scheme: schemeMap[config.colorScheme] || "blues" }}

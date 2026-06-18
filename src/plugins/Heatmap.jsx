@@ -13,7 +13,7 @@ import { ResponsiveHeatMap } from "@nivo/heatmap";
  *   - dimension2: column labels (e.g., "9 AM", "Impressions")
  *   - measure: numeric value for each cell
  */
-export default function Heatmap({ config, sigmaData, setLoading, onSelect }) {
+export default function Heatmap({ config, sigmaData, setLoading, onSelect, theme }) {
   const chartData = useMemo(() => {
     const rowCol = sigmaData[config.dimension1];
     const colCol = sigmaData[config.dimension2];
@@ -52,7 +52,7 @@ export default function Heatmap({ config, sigmaData, setLoading, onSelect }) {
   }, [chartData, setLoading]);
 
   if (!chartData.length) {
-    return <div style={{ padding: 20, color: "#999", textAlign: "center" }}>
+    return <div style={{ padding: 20, color: theme?.muted ?? "#999", textAlign: "center" }}>
       No data to display. Check column mappings.
     </div>;
   }
@@ -66,7 +66,7 @@ export default function Heatmap({ config, sigmaData, setLoading, onSelect }) {
       {config.title && (
         <div style={{
           textAlign: "center", padding: "8px 0", fontSize: 16,
-          fontWeight: 600, fontFamily: "sans-serif", color: "#333",
+          fontWeight: 600, fontFamily: "sans-serif", color: theme?.text ?? "#333",
           flexShrink: 0,
         }}>
           {config.title}
@@ -75,6 +75,7 @@ export default function Heatmap({ config, sigmaData, setLoading, onSelect }) {
       <div style={{ flex: 1, minHeight: 0 }}>
         <ResponsiveHeatMap
           data={chartData}
+          theme={theme?.nivo}
           margin={{ top: 60, right: 90, bottom: 30, left: leftMargin }}
           axisTop={{
             tickSize: 5,

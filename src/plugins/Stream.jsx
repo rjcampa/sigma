@@ -13,7 +13,7 @@ import { ResponsiveStream } from "@nivo/stream";
  *   - dimension2: category (the layers, e.g., "Organic", "Paid")
  *   - measure: numeric value
  */
-export default function Stream({ config, sigmaData, setLoading, onSelect }) {
+export default function Stream({ config, sigmaData, setLoading, onSelect, theme }) {
   const { streamData, streamKeys, timeLabels } = useMemo(() => {
     const timeCol = sigmaData[config.dimension1];
     const catCol = sigmaData[config.dimension2];
@@ -56,7 +56,7 @@ export default function Stream({ config, sigmaData, setLoading, onSelect }) {
 
   if (!streamData.length || !streamKeys.length) {
     return (
-      <div style={{ padding: 20, color: "#999", textAlign: "center" }}>
+      <div style={{ padding: 20, color: theme?.muted ?? "#999", textAlign: "center" }}>
         No data to display. Map time, category, and value columns.
       </div>
     );
@@ -72,7 +72,7 @@ export default function Stream({ config, sigmaData, setLoading, onSelect }) {
       {config.title && (
         <div style={{
           textAlign: "center", padding: "8px 0", fontSize: 16,
-          fontWeight: 600, fontFamily: "sans-serif", color: "#333", flexShrink: 0,
+          fontWeight: 600, fontFamily: "sans-serif", color: theme?.text ?? "#333", flexShrink: 0,
         }}>
           {config.title}
         </div>
@@ -81,6 +81,7 @@ export default function Stream({ config, sigmaData, setLoading, onSelect }) {
         <ResponsiveStream
           data={streamData}
           keys={streamKeys}
+          theme={theme?.nivo}
           margin={{ top: 50, right: 110, bottom: 50, left: 60 }}
           axisBottom={{
             orient: "bottom",

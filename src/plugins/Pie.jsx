@@ -12,7 +12,7 @@ import { ResponsivePie } from "@nivo/pie";
  *   - dimension1: category/slice label
  *   - measure: numeric value
  */
-export default function Pie({ config, sigmaData, setLoading, onSelect }) {
+export default function Pie({ config, sigmaData, setLoading, onSelect, theme }) {
   const pieData = useMemo(() => {
     const labelCol = sigmaData[config.dimension1];
     const valCol = sigmaData[config.measure];
@@ -36,7 +36,7 @@ export default function Pie({ config, sigmaData, setLoading, onSelect }) {
 
   if (!pieData.length) {
     return (
-      <div style={{ padding: 20, color: "#999", textAlign: "center" }}>
+      <div style={{ padding: 20, color: theme?.muted ?? "#999", textAlign: "center" }}>
         No data to display. Check column mappings.
       </div>
     );
@@ -52,7 +52,7 @@ export default function Pie({ config, sigmaData, setLoading, onSelect }) {
       {config.title && (
         <div style={{
           textAlign: "center", padding: "8px 0", fontSize: 16,
-          fontWeight: 600, fontFamily: "sans-serif", color: "#333", flexShrink: 0,
+          fontWeight: 600, fontFamily: "sans-serif", color: theme?.text ?? "#333", flexShrink: 0,
         }}>
           {config.title}
         </div>
@@ -60,6 +60,7 @@ export default function Pie({ config, sigmaData, setLoading, onSelect }) {
       <div style={{ flex: 1, minHeight: 0 }}>
         <ResponsivePie
           data={pieData}
+          theme={theme?.nivo}
           margin={{ top: 40, right: 80, bottom: 80, left: 80 }}
           innerRadius={0.5}
           padAngle={0.7}

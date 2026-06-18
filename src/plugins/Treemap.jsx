@@ -15,7 +15,7 @@ import { ResponsiveTreeMap } from "@nivo/treemap";
  *
  * If dimension2 is not mapped, renders a flat treemap of dimension1.
  */
-export default function Treemap({ config, sigmaData, setLoading, onSelect }) {
+export default function Treemap({ config, sigmaData, setLoading, onSelect, theme }) {
   const treeData = useMemo(() => {
     const cats = sigmaData[config.dimension1];
     const subcats = config.dimension2 ? sigmaData[config.dimension2] : null;
@@ -69,7 +69,7 @@ export default function Treemap({ config, sigmaData, setLoading, onSelect }) {
   }, [treeData, setLoading]);
 
   if (!treeData || !treeData.children?.length) {
-    return <div style={{ padding: 20, color: "#999", textAlign: "center" }}>
+    return <div style={{ padding: 20, color: theme?.muted ?? "#999", textAlign: "center" }}>
       No data to display. Check column mappings.
     </div>;
   }
@@ -90,7 +90,7 @@ export default function Treemap({ config, sigmaData, setLoading, onSelect }) {
       {config.title && (
         <div style={{
           textAlign: "center", padding: "8px 0", fontSize: 16,
-          fontWeight: 600, fontFamily: "sans-serif", color: "#333",
+          fontWeight: 600, fontFamily: "sans-serif", color: theme?.text ?? "#333",
           flexShrink: 0,
         }}>
           {config.title}
@@ -99,6 +99,7 @@ export default function Treemap({ config, sigmaData, setLoading, onSelect }) {
       <div style={{ flex: 1, minHeight: 0 }}>
         <ResponsiveTreeMap
           data={treeData}
+          theme={theme?.nivo}
           identity="name"
           value="value"
           valueFormat=">,.0f"
