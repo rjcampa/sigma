@@ -27,7 +27,7 @@ export const CHART_TYPES = [
   // Statistical / Density (Observable Plot)
   "Histogram", "Ridgeline", "Hexbin",
   // KPI / Business
-  "KPI", "Gauge", "Waterfall", "CohortRetention",
+  "KPI", "Gauge", "Waterfall", "CohortRetention", "CohortPnL",
 ];
 
 export const CHART_COMPONENTS = {
@@ -65,4 +65,5 @@ export const CHART_COMPONENTS = {
   CohortRetention: lazy(() => import("./plugins/CohortRetention")),
   Line: lazy(() => import("./plugins/Line")),
   Scatter: lazy(() => import("./plugins/Scatter")),
+  CohortPnL: lazy(() => import("./plugins/CohortPnL")),
 };

@@ -29,11 +29,14 @@ function makeMockData() {
   const start = new Date("2024-01-01").getTime();
 
   const cohorts = ["2024-01", "2024-02", "2024-03", "2024-04", "2024-05", "2024-06"];
+  const accounts = ["Revenue", "COGS", "Gross Profit", "Marketing", "G&A", "Net Income"];
+  const negAccounts = new Set(["COGS", "Marketing", "G&A"]);
 
   const cat = [], sub = [], time = [], date = [], value = [], value2 = [];
   const from = [], to = [];   // same-set flow (region → region) for Chord
   const delta = [];           // signed change for Waterfall
   const cohort = [], period = [], users = []; // for Cohort Retention
+  const account = [], amount = []; // for Cohort P&L
   for (let i = 0; i < 240; i++) {
     cat.push(cats[i % cats.length]);
     sub.push(subs[i % subs.length]);
@@ -56,8 +59,18 @@ function makeMockData() {
     cohort.push(cohorts[ci]);
     period.push(p);
     users.push(Math.round(200 * Math.pow(0.72, p) * (0.85 + rand() * 0.3)));
+
+    // P&L: line item varies every 6 rows so (account × month) fills a full grid
+    const acc = accounts[Math.floor(i / 6) % accounts.length];
+    account.push(acc);
+    amount.push(negAccounts.has(acc)
+      ? -Math.round(30 + rand() * 110)
+      : Math.round(60 + rand() * 180));
   }
-  return { cat, sub, time, date, value, value2, from, to, delta, cohort, period, users };
+  return {
+    cat, sub, time, date, value, value2, from, to, delta, cohort, period, users,
+    account, amount,
+  };
 }
 
 const MOCK = makeMockData();
@@ -75,6 +88,8 @@ const COLUMNS = {
   cohort: { id: "cohort", name: "Cohort", columnType: "text" },
   period: { id: "period", name: "Period", columnType: "integer" },
   users: { id: "users", name: "Users", columnType: "number" },
+  account: { id: "account", name: "Line item", columnType: "text" },
+  amount: { id: "amount", name: "Amount", columnType: "number" },
 };
 
 const SCHEMES = ["blues", "greens", "reds", "oranges", "purples", "blue_green", "yellow_green"];
@@ -112,6 +127,8 @@ function demoConfigFor(chartType) {
       return { dimension1: "cat", dimension2: "time", measure: "value" };
     case "Scatter":
       return { dimension1: "cat", measure: "value", measure2: "value2" };
+    case "CohortPnL":
+      return { dimension1: "account", dimension2: "time", measure: "amount" };
     default:
       return { dimension1: "cat", dimension2: "sub", measure: "value" };
   }

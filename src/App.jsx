@@ -29,6 +29,7 @@ const DIM1_LABELS = {
   KPI: "Trend period (optional)", Gauge: "Label (optional)",
   Waterfall: "Step / Category", CohortRetention: "Cohort (row)",
   Line: "Series (line)", Scatter: "Group / Color (optional)",
+  CohortPnL: "Line item (row)",
 };
 
 const DIM2_LABELS = {
@@ -42,6 +43,7 @@ const DIM2_LABELS = {
   BoxPlot: "Sub-group (optional)", AreaBump: "Time period",
   ForceGraph: "Target node", Gauge: "Target (optional)",
   CohortRetention: "Period since start", Line: "X axis (ordered)",
+  CohortPnL: "Period (column)",
 };
 
 // Primary-measure label overrides (defaults to "Value (numeric)")
@@ -51,7 +53,7 @@ const MEASURE_LABELS = {
   Ridgeline: "Value (distribution)", Hexbin: "Value X (numeric)",
   ForceGraph: "Relationship weight", KPI: "Metric value", Gauge: "Value",
   Waterfall: "Change (+/−)", CohortRetention: "Users / Count",
-  Line: "Value (Y)", Scatter: "Value X (numeric)",
+  Line: "Value (Y)", Scatter: "Value X (numeric)", CohortPnL: "Amount",
 };
 
 // Charts that do NOT use dimension2 at all
