@@ -5,10 +5,22 @@ Built with React + [Nivo](https://nivo.rocks/) charts, deployed to GitHub Pages.
 
 ## Included Visualizations
 
-| Chart Type | Use Case |
-|-----------|----------|
-| **Heatmap** | Day × hour analysis, campaign × metric grids, correlation matrices |
-| **Treemap** | Spend breakdowns, category hierarchies, portfolio composition |
+24 chart types, selectable from the **Chart Type** dropdown in the plugin panel.
+All are built on [Nivo](https://nivo.rocks/) (d3 under the hood).
+
+| Group | Charts |
+|-------|--------|
+| **Matrix / Grid** | Heatmap, Calendar |
+| **Hierarchical** | Treemap, Sunburst, CirclePacking, Tree, Icicle |
+| **Part-to-Whole** | Pie, Waffle, Funnel |
+| **Flow / Relationship** | Sankey, Chord, Network |
+| **Ranking / Time-series** | Bump, AreaBump, Stream |
+| **Comparison** | Radar, RadialBar, Bullet, Marimekko, ParallelCoordinates |
+| **Distribution** | SwarmPlot, BoxPlot, Voronoi |
+
+Most charts map **dimension1 / dimension2 / measure**. **Voronoi** additionally
+uses a second numeric measure (an X/Y pair), exposed as a **Value Y** field that
+only appears when Voronoi is selected.
 
 ## Quick Start
 

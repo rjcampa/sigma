@@ -1,52 +1,16 @@
+import { useEffect, useRef, useState } from "react";
 import {
   useEditorPanelConfig,
   useConfig,
-  useElementData,
+  usePaginatedElementData,
   useElementColumns,
   useLoadingState,
   useActionTrigger,
   useVariable,
+  usePluginStyle,
 } from "@sigmacomputing/plugin";
-import Heatmap from "./plugins/Heatmap";
-import Treemap from "./plugins/Treemap";
-import Sunburst from "./plugins/Sunburst";
-import Calendar from "./plugins/Calendar";
-import Funnel from "./plugins/Funnel";
-import Pie from "./plugins/Pie";
-import Sankey from "./plugins/Sankey";
-import Chord from "./plugins/Chord";
-import Bump from "./plugins/Bump";
-import Radar from "./plugins/Radar";
-import RadialBar from "./plugins/RadialBar";
-import CirclePacking from "./plugins/CirclePacking";
-import Stream from "./plugins/Stream";
-import Waffle from "./plugins/Waffle";
-import Bullet from "./plugins/Bullet";
-import Marimekko from "./plugins/Marimekko";
-import SwarmPlot from "./plugins/SwarmPlot";
-
-const CHART_TYPES = [
-  // Matrix / Grid
-  "Heatmap", "Calendar",
-  // Hierarchical
-  "Treemap", "Sunburst", "CirclePacking",
-  // Part-to-Whole
-  "Pie", "Waffle", "Funnel",
-  // Flow / Relationship
-  "Sankey", "Chord",
-  // Ranking / Time Series
-  "Bump", "Stream",
-  // Comparison
-  "Radar", "RadialBar", "Bullet", "Marimekko",
-  // Distribution
-  "SwarmPlot",
-];
-
-const CHART_COMPONENTS = {
-  Heatmap, Treemap, Sunburst, Calendar, Funnel, Pie, Sankey, Chord,
-  Bump, Radar, RadialBar, CirclePacking, Stream, Waffle, Bullet,
-  Marimekko, SwarmPlot,
-};
+import { buildTheme } from "./theme";
+import { CHART_TYPES, CHART_COMPONENTS } from "./charts";
 
 // Dynamic sidebar labels per chart type
 const DIM1_LABELS = {
@@ -56,6 +20,9 @@ const DIM1_LABELS = {
   Bump: "Series / Entity", Radar: "Entity", RadialBar: "Category",
   Stream: "Time period", Waffle: "Category", Bullet: "Metric name",
   Marimekko: "Category", SwarmPlot: "Group",
+  Tree: "Parent category", Icicle: "Parent category", Network: "Source node",
+  ParallelCoordinates: "Series / Line (entity)", BoxPlot: "Group",
+  Voronoi: "Point label", AreaBump: "Series / Entity",
 };
 
 const DIM2_LABELS = {
@@ -64,10 +31,22 @@ const DIM2_LABELS = {
   Sankey: "Target node", Chord: "Target", Bump: "Time period",
   Radar: "Metric", RadialBar: "Sub-category", Stream: "Category",
   Bullet: "Target value", Marimekko: "Sub-category",
+  Tree: "Sub-category (child)", Icicle: "Sub-category (child)",
+  Network: "Target node", ParallelCoordinates: "Axis / Variable",
+  BoxPlot: "Sub-group (optional)", AreaBump: "Time period",
+};
+
+// Primary-measure label overrides (defaults to "Value (numeric)")
+const MEASURE_LABELS = {
+  Voronoi: "Value X (numeric)", BoxPlot: "Value (observation)",
+  Network: "Relationship weight",
 };
 
 // Charts that do NOT use dimension2 at all
-const HIDE_DIM2 = new Set(["Calendar", "Funnel", "Pie", "Waffle", "SwarmPlot"]);
+const HIDE_DIM2 = new Set(["Calendar", "Funnel", "Pie", "Waffle", "SwarmPlot", "Voronoi"]);
+
+// Charts that need a SECOND numeric measure (an X/Y pair)
+const NEEDS_MEASURE2 = new Set(["Voronoi"]);
 
 export default function App() {
   const [loading, setLoading] = useLoadingState(true);
@@ -102,9 +81,17 @@ export default function App() {
       : []),
 
     // Measure
-    { type: "column", name: "measure", label: "Value (numeric)",
+    { type: "column", name: "measure",
+      label: MEASURE_LABELS[chartType] || "Value (numeric)",
       source: "source", allowMultiple: false,
       allowedTypes: ["number", "integer"] },
+
+    // Second measure (only for charts that plot an X/Y pair, e.g. Voronoi)
+    ...(NEEDS_MEASURE2.has(chartType)
+      ? [{ type: "column", name: "measure2", label: "Value Y (numeric)",
+           source: "source", allowMultiple: false,
+           allowedTypes: ["number", "integer"] }]
+      : []),
 
     // Display options
     { type: "text", name: "title", label: "Title", defaultValue: "" },
@@ -112,6 +99,12 @@ export default function App() {
       values: ["blues", "greens", "reds", "oranges", "purples", "blue_green", "yellow_green"],
       defaultValue: "blues" },
     { type: "toggle", name: "showLabels", label: "Show Labels", defaultValue: true },
+
+    // Appearance — Auto follows the workbook theme (via usePluginStyle)
+    { type: "radio", name: "appearance", label: "Appearance",
+      values: ["Auto", "Light", "Dark"], defaultValue: "Auto", singleLine: true },
+    // Native Sigma color picker — themes the selection chip & chart accents
+    { type: "color", name: "accentColor", label: "Accent Color" },
 
     // Actions — fire when a user clicks a chart element
     { type: "action-trigger", name: "onSelect", label: "On Element Click" },
@@ -124,14 +117,71 @@ export default function App() {
   // --------------------------------------------------
   // Data & actions
   // --------------------------------------------------
+  // Workbook theme background (Auto appearance follows this) → derived theme.
+  const pluginStyle = usePluginStyle();
+  const theme = buildTheme({
+    appearance: config.appearance,
+    pluginBackground: pluginStyle?.backgroundColor,
+    accent: config.accentColor,
+  });
+
   const columns = useElementColumns(config.source);
-  const sigmaData = useElementData(config.source);
+  // Paginated feed: useElementData caps at 25,000 VALUES (cells, not rows).
+  // usePaginatedElementData returns [data, fetchMore]; fetchMore() appends the
+  // next 25k-value page. We auto-fetch below until the source is fully loaded
+  // (or a safety ceiling is hit) so dense charts stop truncating.
+  const [sigmaData, fetchMore] = usePaginatedElementData(config.source);
   const triggerAction = useActionTrigger("onSelect");
-  const [, setSelectedValue] = useVariable("selectedValue");
+  // Two-way variable binding: the value lives at defaultValue.value (NOT .value).
+  // selectedVar is undefined until the author binds a workbook control to the
+  // "Selected Value" field — writing to it when unbound makes Sigma report
+  // "control variable selectedValue not found", so we guard on it below.
+  const [selectedVar, setSelectedValue] = useVariable("selectedValue");
+  const variableBound = !!selectedVar;
+  const boundValue = selectedVar?.defaultValue?.value;
+  // Local fallback so the selection chip / highlighting work even when no
+  // control is bound (e.g. while testing). A bound control takes precedence.
+  const [localSelection, setLocalSelection] = useState(null);
+  const selectedValue =
+    boundValue != null && String(boundValue).length > 0 ? boundValue : localSelection;
+
+  // ---- Auto-paginate past the 25k-value cap --------------------------------
+  // There is no total-count signal, so we keep fetching while the row count
+  // grows and stop once it plateaus (or MAX_PAGES is reached).
+  const loadedRowsRef = useRef(0);
+  const pagesRef = useRef(0);
+  const MAX_PAGES = 12; // 12 × 25k = 300k values ceiling — tune as needed
+
+  useEffect(() => {
+    // reset bookkeeping whenever the bound source changes
+    loadedRowsRef.current = 0;
+    pagesRef.current = 0;
+  }, [config.source]);
+
+  useEffect(() => {
+    if (!config.source || typeof fetchMore !== "function" || !sigmaData) return;
+    const keys = Object.keys(sigmaData);
+    if (!keys.length) return;
+    const loaded = sigmaData[keys[0]]?.length ?? 0;
+    if (loaded > loadedRowsRef.current && pagesRef.current < MAX_PAGES) {
+      loadedRowsRef.current = loaded;
+      pagesRef.current += 1;
+      fetchMore();
+    }
+  }, [sigmaData, config.source, fetchMore]);
 
   /** Called by every chart component when the user clicks an element. */
   const onSelect = (value) => {
-    try { if (typeof setSelectedValue === "function") setSelectedValue(String(value)); } catch (_) {}
+    setLocalSelection(value == null ? null : String(value));
+    // Only push to the workbook control if one is actually bound.
+    try { if (variableBound && typeof setSelectedValue === "function") setSelectedValue(String(value)); } catch (_) {}
+    try { if (typeof triggerAction === "function") triggerAction(); } catch (_) {}
+  };
+
+  /** Clear the current selection (and any control bound to it). */
+  const clearSelection = () => {
+    setLocalSelection(null);
+    try { if (variableBound && typeof setSelectedValue === "function") setSelectedValue(""); } catch (_) {}
     try { if (typeof triggerAction === "function") triggerAction(); } catch (_) {}
   };
 
@@ -143,10 +193,10 @@ export default function App() {
 
   if (!isConfigured) {
     return (
-      <div style={styles.placeholder}>
+      <div style={{ ...styles.placeholder, backgroundColor: theme.background }}>
         <div style={styles.placeholderIcon}>📊</div>
-        <div style={styles.placeholderTitle}>Custom Visualization Plugin</div>
-        <div style={styles.placeholderText}>
+        <div style={{ ...styles.placeholderTitle, color: theme.text }}>Custom Visualization Plugin</div>
+        <div style={{ ...styles.placeholderText, color: theme.muted }}>
           Select a <strong>Data Source</strong>, then map your columns
           in the panel to the right.
         </div>
@@ -156,8 +206,8 @@ export default function App() {
 
   if (!hasData) {
     return (
-      <div style={styles.placeholder}>
-        <div style={styles.placeholderText}>Waiting for data…</div>
+      <div style={{ ...styles.placeholder, backgroundColor: theme.background }}>
+        <div style={{ ...styles.placeholderText, color: theme.muted }}>Waiting for data…</div>
       </div>
     );
   }
@@ -165,13 +215,81 @@ export default function App() {
   // --------------------------------------------------
   // Route to chart component
   // --------------------------------------------------
-  const ChartComponent = CHART_COMPONENTS[chartType] || Heatmap;
-  const chartProps = { config, sigmaData, columns, setLoading, onSelect };
+  const ChartComponent = CHART_COMPONENTS[chartType] || CHART_COMPONENTS.Heatmap;
+  const chartProps = { config, sigmaData, columns, setLoading, onSelect, selectedValue, theme };
 
-  return <ChartComponent {...chartProps} />;
+  // A non-empty selectedValue means either a chart element was clicked or a
+  // workbook control bound to "Selected Value" is set. Surface it universally.
+  const hasSelection = selectedValue != null && String(selectedValue).length > 0;
+
+  return (
+    <div style={{
+      width: "100%", height: "100%", display: "flex", flexDirection: "column",
+      backgroundColor: theme.background,
+    }}>
+      {hasSelection && (
+        <div style={{
+          ...styles.selectionBar,
+          background: theme.panel,
+          borderBottom: `1px solid ${theme.border}`,
+        }}>
+          <span style={{ ...styles.selectionLabel, color: theme.accent }}>Selected</span>
+          <span style={{ ...styles.selectionValue, color: theme.text }} title={String(selectedValue)}>
+            {String(selectedValue)}
+          </span>
+          <button
+            style={{ ...styles.selectionClear, color: theme.accent }}
+            onClick={clearSelection}
+            title="Clear selection"
+          >
+            ✕
+          </button>
+        </div>
+      )}
+      <div style={{ flex: 1, minHeight: 0 }}>
+        <ChartComponent {...chartProps} />
+      </div>
+    </div>
+  );
 }
 
 const styles = {
+  selectionBar: {
+    flexShrink: 0,
+    display: "flex",
+    alignItems: "center",
+    gap: 8,
+    padding: "6px 12px",
+    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+    fontSize: 12,
+    background: "#eef4fb",
+    borderBottom: "1px solid #d6e3f3",
+  },
+  selectionLabel: {
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
+    fontWeight: 600,
+    color: "#5a7fb0",
+    fontSize: 10,
+  },
+  selectionValue: {
+    fontWeight: 600,
+    color: "#1f3c5f",
+    maxWidth: "70%",
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+    whiteSpace: "nowrap",
+  },
+  selectionClear: {
+    marginLeft: "auto",
+    border: "none",
+    background: "transparent",
+    color: "#5a7fb0",
+    cursor: "pointer",
+    fontSize: 13,
+    lineHeight: 1,
+    padding: 2,
+  },
   placeholder: {
     display: "flex",
     flexDirection: "column",

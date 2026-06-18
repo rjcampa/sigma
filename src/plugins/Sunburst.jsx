@@ -15,7 +15,7 @@ import { ResponsiveSunburst } from "@nivo/sunburst";
  *
  * Uses the same data transformation pattern as Treemap.
  */
-export default function Sunburst({ config, sigmaData, setLoading, onSelect }) {
+export default function Sunburst({ config, sigmaData, setLoading, onSelect, theme }) {
   const treeData = useMemo(() => {
     const cats = sigmaData[config.dimension1];
     const subcats = config.dimension2 ? sigmaData[config.dimension2] : null;
@@ -67,7 +67,7 @@ export default function Sunburst({ config, sigmaData, setLoading, onSelect }) {
 
   if (!treeData || !treeData.children?.length) {
     return (
-      <div style={{ padding: 20, color: "#999", textAlign: "center" }}>
+      <div style={{ padding: 20, color: theme?.muted ?? "#999", textAlign: "center" }}>
         No data to display. Check column mappings.
       </div>
     );
@@ -88,7 +88,7 @@ export default function Sunburst({ config, sigmaData, setLoading, onSelect }) {
       {config.title && (
         <div style={{
           textAlign: "center", padding: "8px 0", fontSize: 16,
-          fontWeight: 600, fontFamily: "sans-serif", color: "#333",
+          fontWeight: 600, fontFamily: "sans-serif", color: theme?.text ?? "#333",
           flexShrink: 0,
         }}>
           {config.title}
@@ -97,6 +97,7 @@ export default function Sunburst({ config, sigmaData, setLoading, onSelect }) {
       <div style={{ flex: 1, minHeight: 0 }}>
         <ResponsiveSunburst
           data={treeData}
+          theme={theme?.nivo}
           id="id"
           value="value"
           valueFormat=">,.0f"

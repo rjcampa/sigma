@@ -13,7 +13,7 @@ import { ResponsiveSankey } from "@nivo/sankey";
  *   - dimension2: target node label
  *   - measure: flow value
  */
-export default function Sankey({ config, sigmaData, setLoading, onSelect }) {
+export default function Sankey({ config, sigmaData, setLoading, onSelect, theme }) {
   const sankeyData = useMemo(() => {
     const srcCol = sigmaData[config.dimension1];
     const tgtCol = sigmaData[config.dimension2];
@@ -50,7 +50,7 @@ export default function Sankey({ config, sigmaData, setLoading, onSelect }) {
 
   if (!sankeyData || !sankeyData.links.length) {
     return (
-      <div style={{ padding: 20, color: "#999", textAlign: "center" }}>
+      <div style={{ padding: 20, color: theme?.muted ?? "#999", textAlign: "center" }}>
         No data to display. Map source, target, and value columns.
       </div>
     );
@@ -66,7 +66,7 @@ export default function Sankey({ config, sigmaData, setLoading, onSelect }) {
       {config.title && (
         <div style={{
           textAlign: "center", padding: "8px 0", fontSize: 16,
-          fontWeight: 600, fontFamily: "sans-serif", color: "#333", flexShrink: 0,
+          fontWeight: 600, fontFamily: "sans-serif", color: theme?.text ?? "#333", flexShrink: 0,
         }}>
           {config.title}
         </div>
@@ -74,6 +74,7 @@ export default function Sankey({ config, sigmaData, setLoading, onSelect }) {
       <div style={{ flex: 1, minHeight: 0 }}>
         <ResponsiveSankey
           data={sankeyData}
+          theme={theme?.nivo}
           margin={{ top: 40, right: 160, bottom: 40, left: 50 }}
           align="justify"
           colors={{ scheme: schemeMap[config.colorScheme] || "blues" }}

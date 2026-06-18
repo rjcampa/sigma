@@ -34,7 +34,7 @@ function toYMD(raw) {
   return `${y}-${m}-${day}`;
 }
 
-export default function Calendar({ config, sigmaData, setLoading, onSelect }) {
+export default function Calendar({ config, sigmaData, setLoading, onSelect, theme }) {
   const { chartData, from, to } = useMemo(() => {
     const dateCol = sigmaData[config.dimension1];
     const valCol = sigmaData[config.measure];
@@ -64,7 +64,7 @@ export default function Calendar({ config, sigmaData, setLoading, onSelect }) {
 
   if (!chartData.length) {
     return (
-      <div style={{ padding: 20, color: "#999", textAlign: "center" }}>
+      <div style={{ padding: 20, color: theme?.muted ?? "#999", textAlign: "center" }}>
         No data to display. Make sure a date column and value column are mapped.
       </div>
     );
@@ -77,7 +77,7 @@ export default function Calendar({ config, sigmaData, setLoading, onSelect }) {
       {config.title && (
         <div style={{
           textAlign: "center", padding: "8px 0", fontSize: 16,
-          fontWeight: 600, fontFamily: "sans-serif", color: "#333",
+          fontWeight: 600, fontFamily: "sans-serif", color: theme?.text ?? "#333",
           flexShrink: 0,
         }}>
           {config.title}
@@ -86,6 +86,7 @@ export default function Calendar({ config, sigmaData, setLoading, onSelect }) {
       <div style={{ flex: 1, minHeight: 0 }}>
         <ResponsiveCalendar
           data={chartData}
+          theme={theme?.nivo}
           from={from}
           to={to}
           emptyColor="#eeeeee"

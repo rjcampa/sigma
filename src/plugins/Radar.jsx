@@ -16,7 +16,7 @@ import { ResponsiveRadar } from "@nivo/radar";
  * The chart pivots the data so each metric is an axis and each entity
  * is a polygon overlay.
  */
-export default function Radar({ config, sigmaData, setLoading, onSelect }) {
+export default function Radar({ config, sigmaData, setLoading, onSelect, theme }) {
   const { radarData, radarKeys } = useMemo(() => {
     const entityCol = sigmaData[config.dimension1];
     const metricCol = sigmaData[config.dimension2];
@@ -51,7 +51,7 @@ export default function Radar({ config, sigmaData, setLoading, onSelect }) {
 
   if (!radarData.length || !radarKeys.length) {
     return (
-      <div style={{ padding: 20, color: "#999", textAlign: "center" }}>
+      <div style={{ padding: 20, color: theme?.muted ?? "#999", textAlign: "center" }}>
         No data to display. Map entity, metric, and value columns.
       </div>
     );
@@ -67,7 +67,7 @@ export default function Radar({ config, sigmaData, setLoading, onSelect }) {
       {config.title && (
         <div style={{
           textAlign: "center", padding: "8px 0", fontSize: 16,
-          fontWeight: 600, fontFamily: "sans-serif", color: "#333", flexShrink: 0,
+          fontWeight: 600, fontFamily: "sans-serif", color: theme?.text ?? "#333", flexShrink: 0,
         }}>
           {config.title}
         </div>
@@ -75,6 +75,7 @@ export default function Radar({ config, sigmaData, setLoading, onSelect }) {
       <div style={{ flex: 1, minHeight: 0 }}>
         <ResponsiveRadar
           data={radarData}
+          theme={theme?.nivo}
           keys={radarKeys}
           indexBy="metric"
           maxValue="auto"

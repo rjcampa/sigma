@@ -13,7 +13,7 @@ import { ResponsiveChord } from "@nivo/chord";
  *   - dimension2: target entity
  *   - measure: relationship value
  */
-export default function Chord({ config, sigmaData, setLoading, onSelect }) {
+export default function Chord({ config, sigmaData, setLoading, onSelect, theme }) {
   const { matrix, keys } = useMemo(() => {
     const srcCol = sigmaData[config.dimension1];
     const tgtCol = sigmaData[config.dimension2];
@@ -51,7 +51,7 @@ export default function Chord({ config, sigmaData, setLoading, onSelect }) {
 
   if (!keys.length) {
     return (
-      <div style={{ padding: 20, color: "#999", textAlign: "center" }}>
+      <div style={{ padding: 20, color: theme?.muted ?? "#999", textAlign: "center" }}>
         No data to display. Map source, target, and value columns.
       </div>
     );
@@ -67,16 +67,17 @@ export default function Chord({ config, sigmaData, setLoading, onSelect }) {
       {config.title && (
         <div style={{
           textAlign: "center", padding: "8px 0", fontSize: 16,
-          fontWeight: 600, fontFamily: "sans-serif", color: "#333", flexShrink: 0,
+          fontWeight: 600, fontFamily: "sans-serif", color: theme?.text ?? "#333", flexShrink: 0,
         }}>
           {config.title}
         </div>
       )}
       <div style={{ flex: 1, minHeight: 0 }}>
         <ResponsiveChord
-          matrix={matrix}
+          data={matrix}
           keys={keys}
           margin={{ top: 60, right: 60, bottom: 90, left: 60 }}
+          theme={theme?.nivo}
           valueFormat=">,.0f"
           padAngle={0.02}
           innerRadiusRatio={0.96}

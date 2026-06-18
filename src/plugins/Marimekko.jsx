@@ -13,7 +13,7 @@ import { ResponsiveMarimekko } from "@nivo/marimekko";
  *   - dimension2: sub-category (stacking dimension, e.g., "Product")
  *   - measure: numeric value
  */
-export default function Marimekko({ config, sigmaData, setLoading, onSelect }) {
+export default function Marimekko({ config, sigmaData, setLoading, onSelect, theme }) {
   const { mariData, dimensions } = useMemo(() => {
     const catCol = sigmaData[config.dimension1];
     const subCol = sigmaData[config.dimension2];
@@ -53,7 +53,7 @@ export default function Marimekko({ config, sigmaData, setLoading, onSelect }) {
 
   if (!mariData.length || !dimensions.length) {
     return (
-      <div style={{ padding: 20, color: "#999", textAlign: "center" }}>
+      <div style={{ padding: 20, color: theme?.muted ?? "#999", textAlign: "center" }}>
         No data to display. Map category, sub-category, and value columns.
       </div>
     );
@@ -69,7 +69,7 @@ export default function Marimekko({ config, sigmaData, setLoading, onSelect }) {
       {config.title && (
         <div style={{
           textAlign: "center", padding: "8px 0", fontSize: 16,
-          fontWeight: 600, fontFamily: "sans-serif", color: "#333", flexShrink: 0,
+          fontWeight: 600, fontFamily: "sans-serif", color: theme?.text ?? "#333", flexShrink: 0,
         }}>
           {config.title}
         </div>
@@ -77,6 +77,7 @@ export default function Marimekko({ config, sigmaData, setLoading, onSelect }) {
       <div style={{ flex: 1, minHeight: 0 }}>
         <ResponsiveMarimekko
           data={mariData}
+          theme={theme?.nivo}
           id="id"
           value="_total"
           dimensions={dimensions}

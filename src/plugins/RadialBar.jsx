@@ -13,7 +13,7 @@ import { ResponsiveRadialBar } from "@nivo/radial-bar";
  *   - measure: numeric value
  *   - dimension2 (optional): sub-category for multi-segment rings
  */
-export default function RadialBar({ config, sigmaData, setLoading, onSelect }) {
+export default function RadialBar({ config, sigmaData, setLoading, onSelect, theme }) {
   const radialData = useMemo(() => {
     const labelCol = sigmaData[config.dimension1];
     const valCol = sigmaData[config.measure];
@@ -55,7 +55,7 @@ export default function RadialBar({ config, sigmaData, setLoading, onSelect }) {
 
   if (!radialData.length) {
     return (
-      <div style={{ padding: 20, color: "#999", textAlign: "center" }}>
+      <div style={{ padding: 20, color: theme?.muted ?? "#999", textAlign: "center" }}>
         No data to display. Check column mappings.
       </div>
     );
@@ -71,7 +71,7 @@ export default function RadialBar({ config, sigmaData, setLoading, onSelect }) {
       {config.title && (
         <div style={{
           textAlign: "center", padding: "8px 0", fontSize: 16,
-          fontWeight: 600, fontFamily: "sans-serif", color: "#333", flexShrink: 0,
+          fontWeight: 600, fontFamily: "sans-serif", color: theme?.text ?? "#333", flexShrink: 0,
         }}>
           {config.title}
         </div>
@@ -79,6 +79,7 @@ export default function RadialBar({ config, sigmaData, setLoading, onSelect }) {
       <div style={{ flex: 1, minHeight: 0 }}>
         <ResponsiveRadialBar
           data={radialData}
+          theme={theme?.nivo}
           valueFormat=">,.0f"
           margin={{ top: 40, right: 120, bottom: 40, left: 40 }}
           padding={0.4}

@@ -13,7 +13,7 @@ import { ResponsiveBump } from "@nivo/bump";
  *   - dimension2: time period (e.g., "Week 1", "Jan")
  *   - measure: value used to compute rank (higher = rank 1)
  */
-export default function Bump({ config, sigmaData, setLoading, onSelect }) {
+export default function Bump({ config, sigmaData, setLoading, onSelect, theme }) {
   const bumpData = useMemo(() => {
     const entityCol = sigmaData[config.dimension1];
     const timeCol = sigmaData[config.dimension2];
@@ -58,7 +58,7 @@ export default function Bump({ config, sigmaData, setLoading, onSelect }) {
 
   if (!bumpData.length) {
     return (
-      <div style={{ padding: 20, color: "#999", textAlign: "center" }}>
+      <div style={{ padding: 20, color: theme?.muted ?? "#999", textAlign: "center" }}>
         No data to display. Map entity, time period, and value columns.
       </div>
     );
@@ -74,7 +74,7 @@ export default function Bump({ config, sigmaData, setLoading, onSelect }) {
       {config.title && (
         <div style={{
           textAlign: "center", padding: "8px 0", fontSize: 16,
-          fontWeight: 600, fontFamily: "sans-serif", color: "#333", flexShrink: 0,
+          fontWeight: 600, fontFamily: "sans-serif", color: theme?.text ?? "#333", flexShrink: 0,
         }}>
           {config.title}
         </div>
@@ -82,6 +82,7 @@ export default function Bump({ config, sigmaData, setLoading, onSelect }) {
       <div style={{ flex: 1, minHeight: 0 }}>
         <ResponsiveBump
           data={bumpData}
+          theme={theme?.nivo}
           margin={{ top: 40, right: 100, bottom: 40, left: 60 }}
           colors={{ scheme: schemeMap[config.colorScheme] || "blues" }}
           lineWidth={3}

@@ -1,21 +1,21 @@
 import { useMemo, useEffect } from "react";
-import { ResponsiveCirclePacking } from "@nivo/circle-packing";
+import { ResponsiveIcicle } from "@nivo/icicle";
 
 /**
- * Circle Packing Plugin
+ * Icicle Plugin
  *
- * Renders nested circles for hierarchical data — an alternative to treemaps.
- * Great for: org structures, file size distribution, nested category breakdown,
- * budget allocation visualization.
+ * Renders a rectangular partition (the "flame graph" cousin of Sunburst).
+ * Great for: hierarchical spend/size breakdowns, profiling-style views,
+ * category → sub-category composition where proportion matters.
  *
  * Required columns:
  *   - dimension1: parent category
- *   - dimension2 (optional): child/subcategory (flat if omitted)
- *   - measure: numeric value
+ *   - dimension2: child / sub-category — optional (flat bar if omitted)
+ *   - measure: numeric value (rectangle size)
  *
- * Same data pattern as Treemap and Sunburst.
+ * Shares the exact hierarchy shape used by Sunburst / Treemap / Tree.
  */
-export default function CirclePacking({ config, sigmaData, setLoading, onSelect, theme }) {
+export default function Icicle({ config, sigmaData, setLoading, onSelect, theme }) {
   const treeData = useMemo(() => {
     const cats = sigmaData[config.dimension1];
     const subcats = config.dimension2 ? sigmaData[config.dimension2] : null;
@@ -27,7 +27,6 @@ export default function CirclePacking({ config, sigmaData, setLoading, onSelect,
       const cat = String(cats[i] ?? "Other");
       const val = Math.abs(Number(vals[i]) || 0);
       if (val === 0) continue;
-
       if (subcats) {
         const sub = String(subcats[i] ?? "Other");
         if (!tree[cat]) tree[cat] = {};
@@ -42,21 +41,14 @@ export default function CirclePacking({ config, sigmaData, setLoading, onSelect,
         id: config.title || "root",
         children: Object.entries(tree).map(([cat, subs]) => ({
           id: cat,
-          children: Object.entries(subs).map(([sub, val]) => ({
-            id: sub,
-            value: val,
-          })),
-        })),
-      };
-    } else {
-      return {
-        id: config.title || "root",
-        children: Object.entries(tree).map(([cat, val]) => ({
-          id: cat,
-          value: val,
+          children: Object.entries(subs).map(([sub, val]) => ({ id: sub, value: val })),
         })),
       };
     }
+    return {
+      id: config.title || "root",
+      children: Object.entries(tree).map(([cat, val]) => ({ id: cat, value: val })),
+    };
   }, [sigmaData, config.dimension1, config.dimension2, config.measure, config.title]);
 
   useEffect(() => {
@@ -87,25 +79,31 @@ export default function CirclePacking({ config, sigmaData, setLoading, onSelect,
         </div>
       )}
       <div style={{ flex: 1, minHeight: 0 }}>
-        <ResponsiveCirclePacking
+        <ResponsiveIcicle
           data={treeData}
           theme={theme?.nivo}
-          id="id"
+          identity="id"
           value="value"
           valueFormat=">,.0f"
-          margin={{ top: 20, right: 20, bottom: 20, left: 20 }}
-          colors={{ scheme: schemeMap[config.colorScheme] || "blues" }}
-          childColor={{ from: "color", modifiers: [["brighter", 0.4]] }}
-          padding={4}
-          enableLabels={config.showLabels ?? true}
-          labelsFilter={(label) => label.node.depth <= 2}
-          labelsSkipRadius={20}
-          labelTextColor={{ from: "color", modifiers: [["darker", 2]] }}
+          orientation="top"
+          margin={{ top: 10, right: 10, bottom: 10, left: 10 }}
+          gapX={2}
+          gapY={2}
+          borderRadius={2}
           borderWidth={1}
-          borderColor={{ from: "color", modifiers: [["darker", 0.5]] }}
+          borderColor={{ from: "color", modifiers: [["darker", 0.4]] }}
+          colors={{ scheme: schemeMap[config.colorScheme] || "blues" }}
+          inheritColorFromParent={true}
+          childColor={{ from: "color", modifiers: [["brighter", 0.3]] }}
+          enableLabels={config.showLabels ?? true}
+          label="id"
+          labelTextColor={{ from: "color", modifiers: [["darker", 2.5]] }}
           animate={true}
           motionConfig="gentle"
-          tooltip={({ id, value, color }) => (
+          onClick={(node) => {
+            if (onSelect && node.id) onSelect(String(node.id));
+          }}
+          tooltip={(node) => (
             <div style={{
               background: "white", padding: "8px 12px", borderRadius: 4,
               boxShadow: "0 2px 8px rgba(0,0,0,0.15)", fontSize: 13,
@@ -113,16 +111,13 @@ export default function CirclePacking({ config, sigmaData, setLoading, onSelect,
             }}>
               <span style={{
                 display: "inline-block", width: 12, height: 12,
-                backgroundColor: color, borderRadius: "50%",
+                backgroundColor: node.color, borderRadius: 2,
               }} />
               <span>
-                <strong>{id}</strong>: {value.toLocaleString()}
+                <strong>{node.id}</strong>: {node.formattedValue ?? node.value}
               </span>
             </div>
           )}
-          onClick={(node) => {
-            if (onSelect && node.id) onSelect(String(node.id));
-          }}
         />
       </div>
     </div>
