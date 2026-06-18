@@ -23,6 +23,8 @@ const DIM1_LABELS = {
   Tree: "Parent category", Icicle: "Parent category", Network: "Source node",
   ParallelCoordinates: "Series / Line (entity)", BoxPlot: "Group",
   Voronoi: "Point label", AreaBump: "Series / Entity",
+  Histogram: "Group / Color (optional)", Ridgeline: "Group (ridge)",
+  Hexbin: "Label (optional)",
 };
 
 const DIM2_LABELS = {
@@ -39,14 +41,21 @@ const DIM2_LABELS = {
 // Primary-measure label overrides (defaults to "Value (numeric)")
 const MEASURE_LABELS = {
   Voronoi: "Value X (numeric)", BoxPlot: "Value (observation)",
-  Network: "Relationship weight",
+  Network: "Relationship weight", Histogram: "Value (to bin)",
+  Ridgeline: "Value (distribution)", Hexbin: "Value X (numeric)",
 };
 
 // Charts that do NOT use dimension2 at all
-const HIDE_DIM2 = new Set(["Calendar", "Funnel", "Pie", "Waffle", "SwarmPlot", "Voronoi"]);
+const HIDE_DIM2 = new Set([
+  "Calendar", "Funnel", "Pie", "Waffle", "SwarmPlot", "Voronoi",
+  "Histogram", "Ridgeline", "Hexbin",
+]);
 
 // Charts that need a SECOND numeric measure (an X/Y pair)
-const NEEDS_MEASURE2 = new Set(["Voronoi"]);
+const NEEDS_MEASURE2 = new Set(["Voronoi", "Hexbin"]);
+
+// Charts where dimension1 is OPTIONAL (don't block rendering on it)
+const NO_DIM1 = new Set(["Histogram", "Hexbin"]);
 
 export default function App() {
   const [loading, setLoading] = useLoadingState(true);
@@ -188,7 +197,9 @@ export default function App() {
   // --------------------------------------------------
   // Guards
   // --------------------------------------------------
-  const isConfigured = config.source && config.dimension1 && config.measure;
+  const isConfigured =
+    config.source && config.measure &&
+    (NO_DIM1.has(chartType) || config.dimension1);
   const hasData = sigmaData && Object.keys(sigmaData).length > 0;
 
   if (!isConfigured) {

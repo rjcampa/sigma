@@ -24,81 +24,76 @@ only appears when Voronoi is selected.
 
 ## Quick Start
 
+**Live:**
+- Plugin (use as the Production URL in Sigma) → `https://rjcampa.github.io/sigma/`
+- Standalone preview, no Sigma needed → `https://rjcampa.github.io/sigma/?demo`
+
 ```bash
 # 1. Clone and install
-git clone https://github.com/YOUR_USERNAME/YOUR_REPO.git
-cd YOUR_REPO
+git clone https://github.com/rjcampa/sigma.git
+cd sigma
 npm install
 
-# 2. Run locally
+# 2. Run locally (serves HTTPS at https://localhost:5173/sigma/)
 npm run dev
-# → opens at http://localhost:5173
 
 # 3. Deploy (auto-deploys on push to main via GitHub Actions)
-git add . && git commit -m "initial" && git push origin main
+git push origin main
 ```
 
-## One-Time Setup
+> **Tip:** to eyeball the charts without Sigma, open the `?demo` URL (live or
+> `https://localhost:5173/sigma/?demo`). It renders every chart on mock data and
+> has dropdowns for chart type, color scheme, and light/dark — pick a specific
+> chart with `?demo&chart=Network`.
 
-### A. Configure the base path
+## Setup
 
-In `vite.config.js`, change the `base` value to match your repo name:
+### Register the Plugin in Sigma
 
-```js
-base: "/your-repo-name/"
-```
+1. In Sigma, go to **Administration** → **Account** → **Custom Plugins** → **Add**
+2. **Name:** e.g. "Custom Viz"
+3. **Production URL:** `https://rjcampa.github.io/sigma/`
+4. **Development URL:** `https://localhost:5173/sigma/` (note **https** and the `/sigma/` path)
+5. **Create Plugin**
 
-### B. Enable GitHub Pages
+### Use the Plugin in a Workbook
 
-1. Go to your repo → **Settings** → **Pages**
-2. Under **Source**, select **GitHub Actions**
-3. Push to `main` — the Action will build and deploy automatically
+1. Open/create a workbook with a data table
+2. **Edit** → **+ Add Element** → **UI** → **Plugins** → select your plugin
+3. In the right panel: pick a **Data Source**, map **dimension1 / dimension2 / measure**
+   (labels change per chart), and choose a **Chart Type**
+4. Use the element's **••• → Point to Development URL** to test local changes live
 
-Your plugin will be live at:
-```
-https://YOUR_USERNAME.github.io/YOUR_REPO/
-```
-
-### C. Register the Plugin in Sigma
-
-1. In Sigma, go to **Administration** → **Account** → **Custom Plugins**
-2. Click **Add**
-3. Set **Name** to something like "Custom Viz"
-4. Set **Production URL** to your GitHub Pages URL above
-5. Set **Development URL** to `http://localhost:5173` (for local dev)
-6. Click **Create Plugin**
-
-### D. Use the Plugin in a Workbook
-
-1. Open/create a workbook that has a data table
-2. Click **Edit** → **+ Add New** → **Plugins**
-3. Select your registered plugin
-4. In the right panel:
-   - Pick your **Data Source** (a table in the workbook)
-   - Map **Category**, **Sub-category**, and **Value** columns
-   - Choose a **Chart Type** from the dropdown
-5. Your visualization renders live!
+> **GitHub Pages** is already configured (Settings → Pages → Source: GitHub Actions).
+> Pushing to `main` builds and deploys automatically. The `base` in `vite.config.js`
+> is `"/sigma/"` to match the repo name.
 
 ## Local Development
 
 ```bash
-npm run dev
+npm run dev   # https://localhost:5173/sigma/
 ```
 
-Then in Sigma, add the plugin using the Dev Playground (or your registered
-plugin's development URL). Changes hot-reload in the workbook.
+The dev server runs over **HTTPS** (via `@vitejs/plugin-basic-ssl`) because Sigma
+runs on HTTPS and browsers block an insecure (`http://`) plugin iframe inside it.
+The cert is self-signed, so the first time, open `https://localhost:5173/sigma/`
+directly and accept the browser warning, then point the plugin element at the
+Development URL. If Safari keeps blocking the self-signed iframe, use Chrome or the
+deployed Production URL.
 
 ## Adding More Chart Types
 
-1. Create a new component in `src/plugins/MyNewChart.jsx`
-2. Add the chart name to `CHART_TYPES` array in `src/App.jsx`
-3. Add a `case` in the switch statement to route to it
-4. Push to `main` — auto-deploys
+1. Create `src/plugins/MyNewChart.jsx` accepting `{ config, sigmaData, columns, setLoading, onSelect, theme }`
+2. Register it in `src/charts.js` (`CHART_TYPES` + `CHART_COMPONENTS`)
+3. Add panel labels in `src/App.jsx` (`DIM1_LABELS` / `DIM2_LABELS`, and `HIDE_DIM2` /
+   `NEEDS_MEASURE2` if it omits a sub-category or needs an X/Y pair)
+4. Add a mock mapping in `src/DevPreview.jsx` so it shows in `?demo`
+5. Push to `main` — auto-deploys
 
 ## Tech Stack
 
-- **Vite** — build tool
-- **React 18** — UI framework
-- **@sigmacomputing/plugin** — Sigma data bridge
-- **@nivo/heatmap** + **@nivo/treemap** — chart rendering
-- **GitHub Pages** — hosting (free)
+- **Vite** + **React 18** — build & UI
+- **@sigmacomputing/plugin** — Sigma data bridge (config, data, variables, actions, theme)
+- **Nivo** (d3-based) — most chart rendering
+- **Observable Plot** — statistical charts (histogram, ridgeline, hexbin)
+- **GitHub Pages** — hosting (free, auto-deploy)

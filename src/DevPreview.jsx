@@ -74,6 +74,11 @@ function demoConfigFor(chartType) {
       return { dimension1: "from", dimension2: "to", measure: "value" };
     case "Voronoi":
       return { dimension1: "cat", measure: "value", measure2: "value2" };
+    case "Histogram":
+    case "Ridgeline":
+      return { dimension1: "cat", measure: "value" };
+    case "Hexbin":
+      return { measure: "value", measure2: "value2" };
     case "Bullet":
       return { dimension1: "cat", dimension2: "value2", measure: "value" };
     default:
