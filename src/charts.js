@@ -1,34 +1,13 @@
-// Chart registry — imports ONLY the Nivo-based chart components (no Sigma
-// plugin package). This lets the standalone DevPreview render charts without
-// pulling in @sigmacomputing/plugin, whose pre-initialized client throws
-// ("Unexpected end of JSON input") when evaluated outside a Sigma iframe.
-import Heatmap from "./plugins/Heatmap";
-import Treemap from "./plugins/Treemap";
-import Sunburst from "./plugins/Sunburst";
-import Calendar from "./plugins/Calendar";
-import Funnel from "./plugins/Funnel";
-import Pie from "./plugins/Pie";
-import Sankey from "./plugins/Sankey";
-import Chord from "./plugins/Chord";
-import Bump from "./plugins/Bump";
-import Radar from "./plugins/Radar";
-import RadialBar from "./plugins/RadialBar";
-import CirclePacking from "./plugins/CirclePacking";
-import Stream from "./plugins/Stream";
-import Waffle from "./plugins/Waffle";
-import Bullet from "./plugins/Bullet";
-import Marimekko from "./plugins/Marimekko";
-import SwarmPlot from "./plugins/SwarmPlot";
-import Tree from "./plugins/Tree";
-import Icicle from "./plugins/Icicle";
-import Network from "./plugins/Network";
-import ParallelCoordinates from "./plugins/ParallelCoordinates";
-import BoxPlot from "./plugins/BoxPlot";
-import Voronoi from "./plugins/Voronoi";
-import AreaBump from "./plugins/AreaBump";
-import Histogram from "./plugins/Histogram";
-import Ridgeline from "./plugins/Ridgeline";
-import Hexbin from "./plugins/Hexbin";
+import { lazy } from "react";
+
+// Chart registry. Components are LAZY-LOADED (code-split) so each chart — and
+// the charting library it pulls in — only downloads when that chart is selected.
+// This keeps the initial bundle small even as heavier libs (Observable Plot,
+// react-force-graph) are added. Renderers must be wrapped in <Suspense>.
+//
+// No Sigma plugin imports here, so the standalone DevPreview can use this
+// registry without evaluating @sigmacomputing/plugin (whose pre-initialized
+// client throws when run outside a Sigma iframe).
 
 export const CHART_TYPES = [
   // Matrix / Grid
@@ -38,7 +17,7 @@ export const CHART_TYPES = [
   // Part-to-Whole
   "Pie", "Waffle", "Funnel",
   // Flow / Relationship
-  "Sankey", "Chord", "Network",
+  "Sankey", "Chord", "Network", "ForceGraph",
   // Ranking / Time Series
   "Bump", "AreaBump", "Stream",
   // Comparison
@@ -50,8 +29,32 @@ export const CHART_TYPES = [
 ];
 
 export const CHART_COMPONENTS = {
-  Heatmap, Treemap, Sunburst, Calendar, Funnel, Pie, Sankey, Chord,
-  Bump, Radar, RadialBar, CirclePacking, Stream, Waffle, Bullet,
-  Marimekko, SwarmPlot, Tree, Icicle, Network, ParallelCoordinates,
-  BoxPlot, Voronoi, AreaBump, Histogram, Ridgeline, Hexbin,
+  Heatmap: lazy(() => import("./plugins/Heatmap")),
+  Calendar: lazy(() => import("./plugins/Calendar")),
+  Treemap: lazy(() => import("./plugins/Treemap")),
+  Sunburst: lazy(() => import("./plugins/Sunburst")),
+  CirclePacking: lazy(() => import("./plugins/CirclePacking")),
+  Tree: lazy(() => import("./plugins/Tree")),
+  Icicle: lazy(() => import("./plugins/Icicle")),
+  Pie: lazy(() => import("./plugins/Pie")),
+  Waffle: lazy(() => import("./plugins/Waffle")),
+  Funnel: lazy(() => import("./plugins/Funnel")),
+  Sankey: lazy(() => import("./plugins/Sankey")),
+  Chord: lazy(() => import("./plugins/Chord")),
+  Network: lazy(() => import("./plugins/Network")),
+  ForceGraph: lazy(() => import("./plugins/ForceGraph")),
+  Bump: lazy(() => import("./plugins/Bump")),
+  AreaBump: lazy(() => import("./plugins/AreaBump")),
+  Stream: lazy(() => import("./plugins/Stream")),
+  Radar: lazy(() => import("./plugins/Radar")),
+  RadialBar: lazy(() => import("./plugins/RadialBar")),
+  Bullet: lazy(() => import("./plugins/Bullet")),
+  Marimekko: lazy(() => import("./plugins/Marimekko")),
+  ParallelCoordinates: lazy(() => import("./plugins/ParallelCoordinates")),
+  SwarmPlot: lazy(() => import("./plugins/SwarmPlot")),
+  BoxPlot: lazy(() => import("./plugins/BoxPlot")),
+  Voronoi: lazy(() => import("./plugins/Voronoi")),
+  Histogram: lazy(() => import("./plugins/Histogram")),
+  Ridgeline: lazy(() => import("./plugins/Ridgeline")),
+  Hexbin: lazy(() => import("./plugins/Hexbin")),
 };

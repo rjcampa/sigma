@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, Suspense } from "react";
 import {
   useEditorPanelConfig,
   useConfig,
@@ -24,7 +24,7 @@ const DIM1_LABELS = {
   ParallelCoordinates: "Series / Line (entity)", BoxPlot: "Group",
   Voronoi: "Point label", AreaBump: "Series / Entity",
   Histogram: "Group / Color (optional)", Ridgeline: "Group (ridge)",
-  Hexbin: "Label (optional)",
+  Hexbin: "Label (optional)", ForceGraph: "Source node",
 };
 
 const DIM2_LABELS = {
@@ -36,6 +36,7 @@ const DIM2_LABELS = {
   Tree: "Sub-category (child)", Icicle: "Sub-category (child)",
   Network: "Target node", ParallelCoordinates: "Axis / Variable",
   BoxPlot: "Sub-group (optional)", AreaBump: "Time period",
+  ForceGraph: "Target node",
 };
 
 // Primary-measure label overrides (defaults to "Value (numeric)")
@@ -43,6 +44,7 @@ const MEASURE_LABELS = {
   Voronoi: "Value X (numeric)", BoxPlot: "Value (observation)",
   Network: "Relationship weight", Histogram: "Value (to bin)",
   Ridgeline: "Value (distribution)", Hexbin: "Value X (numeric)",
+  ForceGraph: "Relationship weight",
 };
 
 // Charts that do NOT use dimension2 at all
@@ -258,7 +260,17 @@ export default function App() {
         </div>
       )}
       <div style={{ flex: 1, minHeight: 0 }}>
-        <ChartComponent {...chartProps} />
+        <Suspense fallback={
+          <div style={{
+            display: "flex", alignItems: "center", justifyContent: "center",
+            height: "100%", fontFamily: "sans-serif", fontSize: 13,
+            color: theme.muted, background: theme.background,
+          }}>
+            Loading chart…
+          </div>
+        }>
+          <ChartComponent {...chartProps} />
+        </Suspense>
       </div>
     </div>
   );

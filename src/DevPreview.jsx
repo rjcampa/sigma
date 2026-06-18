@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import { CHART_TYPES, CHART_COMPONENTS } from "./charts";
 import { buildTheme } from "./theme";
 
@@ -71,6 +71,7 @@ function demoConfigFor(chartType) {
     case "Stream":
       return { dimension1: "cat", dimension2: "time", measure: "value" };
     case "Chord":
+    case "ForceGraph":
       return { dimension1: "from", dimension2: "to", measure: "value" };
     case "Voronoi":
       return { dimension1: "cat", measure: "value", measure2: "value2" };
@@ -163,7 +164,13 @@ export default function DevPreview() {
       </div>
 
       <div style={{ flex: 1, minHeight: 0, background: theme.background }}>
-        <ChartComponent {...chartProps} />
+        <Suspense fallback={
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100%", color: theme.muted, fontSize: 13 }}>
+            Loading chart…
+          </div>
+        }>
+          <ChartComponent {...chartProps} />
+        </Suspense>
       </div>
     </div>
   );
