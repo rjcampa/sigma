@@ -25,7 +25,7 @@ function makeMockData() {
 
   const cats = ["North", "South", "East", "West", "Central"];
   const subs = ["Alpha", "Beta", "Gamma"];
-  const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun"];
+  const months = ["2024-01", "2024-02", "2024-03", "2024-04", "2024-05", "2024-06"];
   const start = new Date("2024-01-01").getTime();
 
   const cohorts = ["2024-01", "2024-02", "2024-03", "2024-04", "2024-05", "2024-06"];
@@ -108,6 +108,10 @@ function demoConfigFor(chartType) {
       return { dimension1: "cat", measure: "delta" };
     case "CohortRetention":
       return { dimension1: "cohort", dimension2: "period", measure: "users" };
+    case "Line":
+      return { dimension1: "cat", dimension2: "time", measure: "value" };
+    case "Scatter":
+      return { dimension1: "cat", measure: "value", measure2: "value2" };
     default:
       return { dimension1: "cat", dimension2: "sub", measure: "value" };
   }
@@ -136,6 +140,7 @@ export default function DevPreview() {
     ...demoConfigFor(chartType),
     colorScheme,
     aggregation,
+    cumulative: new URLSearchParams(window.location.search).get("cumulative") === "1",
     showLabels: true,
     title: "",
     appearance,

@@ -19,11 +19,11 @@ export const CHART_TYPES = [
   // Flow / Relationship
   "Sankey", "Chord", "Network", "ForceGraph",
   // Ranking / Time Series
-  "Bump", "AreaBump", "Stream",
+  "Line", "Bump", "AreaBump", "Stream",
   // Comparison
   "Radar", "RadialBar", "Bullet", "Marimekko", "ParallelCoordinates",
   // Distribution
-  "SwarmPlot", "BoxPlot", "Voronoi",
+  "Scatter", "SwarmPlot", "BoxPlot", "Voronoi",
   // Statistical / Density (Observable Plot)
   "Histogram", "Ridgeline", "Hexbin",
   // KPI / Business
@@ -63,4 +63,6 @@ export const CHART_COMPONENTS = {
   Gauge: lazy(() => import("./plugins/Gauge")),
   Waterfall: lazy(() => import("./plugins/Waterfall")),
   CohortRetention: lazy(() => import("./plugins/CohortRetention")),
+  Line: lazy(() => import("./plugins/Line")),
+  Scatter: lazy(() => import("./plugins/Scatter")),
 };

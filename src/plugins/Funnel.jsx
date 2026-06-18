@@ -47,7 +47,21 @@ export default function Funnel({ config, sigmaData, setLoading, onSelect, theme 
         value: aggregate(values, method),
         label,
       }));
-  }, [sigmaData, config.dimension1, config.measure]);
+  }, [sigmaData, config.dimension1, config.measure, config.aggregation]);
+
+  // Conversion lookups: % of the first stage (top) and % from the previous stage.
+  const conv = useMemo(() => {
+    const top = funnelData[0]?.value || 0;
+    const m = {};
+    funnelData.forEach((d, i) => {
+      const prev = i > 0 ? funnelData[i - 1].value : null;
+      m[d.id] = {
+        pctTop: top ? (d.value / top) * 100 : null,
+        pctPrev: i === 0 ? null : prev ? (d.value / prev) * 100 : null,
+      };
+    });
+    return m;
+  }, [funnelData]);
 
   useEffect(() => {
     if (funnelData.length > 0) setLoading(false);
@@ -71,6 +85,32 @@ export default function Funnel({ config, sigmaData, setLoading, onSelect, theme 
     yellow_green: "yellow_green",
   };
 
+  // Custom layer: step-to-step conversion %, in the left margin at each band.
+  const ConversionLayer = ({ parts }) => (
+    <g>
+      {parts.map((p, i) => {
+        if (i === 0) return null;
+        const pv = parts[i - 1]?.data?.value;
+        const v = p?.data?.value;
+        if (!pv || v == null) return null;
+        const pct = (v / pv) * 100;
+        const down = pct < 100;
+        return (
+          <text
+            key={p.data.id ?? i}
+            x={-10}
+            y={p.y ?? 0}
+            textAnchor="end"
+            dominantBaseline="central"
+            style={{ fontSize: 11, fontWeight: 700, fill: down ? "#dc2626" : "#16a34a" }}
+          >
+            {down ? "▼" : "▲"} {Math.round(pct)}%
+          </text>
+        );
+      })}
+    </g>
+  );
+
   return (
     <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column" }}>
       {config.title && (
@@ -86,7 +126,7 @@ export default function Funnel({ config, sigmaData, setLoading, onSelect, theme 
         <ResponsiveFunnel
           data={funnelData}
           theme={theme?.nivo}
-          margin={{ top: 20, right: 20, bottom: 20, left: 20 }}
+          margin={{ top: 20, right: 20, bottom: 20, left: 72 }}
           valueFormat=">,.0f"
           colors={{ scheme: schemeMap[config.colorScheme] || "blues" }}
           borderWidth={0}
@@ -96,22 +136,26 @@ export default function Funnel({ config, sigmaData, setLoading, onSelect, theme 
           enableLabel={config.showLabels ?? true}
           currentPartSizeExtension={10}
           motionConfig="gentle"
-          tooltip={({ part }) => (
-            <div style={{
-              background: "white", padding: "8px 12px", borderRadius: 4,
-              boxShadow: "0 2px 8px rgba(0,0,0,0.15)", fontSize: 13,
-              display: "flex", alignItems: "center", gap: 8,
-            }}>
-              <span style={{
-                display: "inline-block", width: 12, height: 12,
-                backgroundColor: part.color, borderRadius: 2,
-              }} />
-              <span>
-                <strong>{part.data.label || part.data.id}</strong>:{" "}
-                {part.formattedValue}
-              </span>
-            </div>
-          )}
+          layers={["separators", "parts", "labels", "annotations", ConversionLayer]}
+          tooltip={({ part }) => {
+            const c = conv[part.data.id] || {};
+            return (
+              <div style={{
+                background: theme?.isDark ? "#2b3142" : "white", color: theme?.text ?? "#333",
+                padding: "8px 12px", borderRadius: 8, fontSize: 13,
+                boxShadow: "0 6px 20px rgba(15,23,42,0.14)", border: `1px solid ${theme?.border ?? "#e5e5e5"}`,
+              }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 2 }}>
+                  <span style={{ display: "inline-block", width: 12, height: 12, backgroundColor: part.color, borderRadius: 2 }} />
+                  <strong>{part.data.label || part.data.id}</strong>: {part.formattedValue}
+                </div>
+                <div style={{ color: theme?.muted ?? "#777", fontSize: 12 }}>
+                  {c.pctTop != null && `${Math.round(c.pctTop)}% of top`}
+                  {c.pctPrev != null && ` · ${Math.round(c.pctPrev)}% from previous`}
+                </div>
+              </div>
+            );
+          }}
           onClick={(part) => {
             if (onSelect && part.data) onSelect(String(part.data.id));
           }}

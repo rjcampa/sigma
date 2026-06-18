@@ -28,6 +28,7 @@ const DIM1_LABELS = {
   Hexbin: "Label (optional)", ForceGraph: "Source node",
   KPI: "Trend period (optional)", Gauge: "Label (optional)",
   Waterfall: "Step / Category", CohortRetention: "Cohort (row)",
+  Line: "Series (line)", Scatter: "Group / Color (optional)",
 };
 
 const DIM2_LABELS = {
@@ -40,7 +41,7 @@ const DIM2_LABELS = {
   Network: "Target node", ParallelCoordinates: "Axis / Variable",
   BoxPlot: "Sub-group (optional)", AreaBump: "Time period",
   ForceGraph: "Target node", Gauge: "Target (optional)",
-  CohortRetention: "Period since start",
+  CohortRetention: "Period since start", Line: "X axis (ordered)",
 };
 
 // Primary-measure label overrides (defaults to "Value (numeric)")
@@ -50,25 +51,29 @@ const MEASURE_LABELS = {
   Ridgeline: "Value (distribution)", Hexbin: "Value X (numeric)",
   ForceGraph: "Relationship weight", KPI: "Metric value", Gauge: "Value",
   Waterfall: "Change (+/−)", CohortRetention: "Users / Count",
+  Line: "Value (Y)", Scatter: "Value X (numeric)",
 };
 
 // Charts that do NOT use dimension2 at all
 const HIDE_DIM2 = new Set([
   "Calendar", "Funnel", "Pie", "Waffle", "SwarmPlot", "Voronoi",
-  "Histogram", "Ridgeline", "Hexbin", "KPI", "Waterfall",
+  "Histogram", "Ridgeline", "Hexbin", "KPI", "Waterfall", "Scatter",
 ]);
 
 // Charts that need a SECOND numeric measure (an X/Y pair)
-const NEEDS_MEASURE2 = new Set(["Voronoi", "Hexbin"]);
+const NEEDS_MEASURE2 = new Set(["Voronoi", "Hexbin", "Scatter"]);
 
 // Charts where dimension1 is OPTIONAL (don't block rendering on it)
-const NO_DIM1 = new Set(["Histogram", "Hexbin", "KPI", "Gauge"]);
+const NO_DIM1 = new Set(["Histogram", "Hexbin", "KPI", "Gauge", "Scatter"]);
 
 // Distribution/raw charts that plot EVERY row — aggregation doesn't apply,
 // so hide the Aggregation control for them.
 const HIDE_AGG = new Set([
-  "SwarmPlot", "BoxPlot", "Voronoi", "Histogram", "Ridgeline", "Hexbin",
+  "SwarmPlot", "BoxPlot", "Voronoi", "Histogram", "Ridgeline", "Hexbin", "Scatter",
 ]);
+
+// Charts that expose a "Cumulative" toggle (running-sum the series).
+const CUMULATIVE_CHARTS = new Set(["Line"]);
 
 export default function App() {
   const [loading, setLoading] = useLoadingState(true);
@@ -119,6 +124,11 @@ export default function App() {
     ...(!HIDE_AGG.has(chartType)
       ? [{ type: "dropdown", name: "aggregation", label: "Aggregation",
            values: AGG_METHODS, defaultValue: "Sum" }]
+      : []),
+
+    // Cumulative running-sum (LTV / saturation curves)
+    ...(CUMULATIVE_CHARTS.has(chartType)
+      ? [{ type: "toggle", name: "cumulative", label: "Cumulative (LTV / saturation)", defaultValue: false }]
       : []),
 
     // Display options
