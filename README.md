@@ -5,22 +5,32 @@ Built with React + [Nivo](https://nivo.rocks/) charts, deployed to GitHub Pages.
 
 ## Included Visualizations
 
-24 chart types, selectable from the **Chart Type** dropdown in the plugin panel.
-All are built on [Nivo](https://nivo.rocks/) (d3 under the hood).
+**35 chart types**, selectable from the **Chart Type** dropdown. Built on
+[Nivo](https://nivo.rocks/), [Observable Plot](https://observablehq.com/plot/),
+and [react-force-graph](https://github.com/vasturiano/react-force-graph) (all d3-based).
 
 | Group | Charts |
 |-------|--------|
 | **Matrix / Grid** | Heatmap, Calendar |
 | **Hierarchical** | Treemap, Sunburst, CirclePacking, Tree, Icicle |
 | **Part-to-Whole** | Pie, Waffle, Funnel |
-| **Flow / Relationship** | Sankey, Chord, Network |
-| **Ranking / Time-series** | Bump, AreaBump, Stream |
+| **Flow / Relationship** | Sankey, Chord, Network, ForceGraph |
+| **Ranking / Time-series** | Line, Bump, AreaBump, Stream |
 | **Comparison** | Radar, RadialBar, Bullet, Marimekko, ParallelCoordinates |
-| **Distribution** | SwarmPlot, BoxPlot, Voronoi |
+| **Distribution** | Scatter, SwarmPlot, BoxPlot, Voronoi |
+| **Statistical** | Histogram, Ridgeline, Hexbin |
+| **KPI / Business** | KPI, Gauge, Waterfall, CohortRetention, CohortPnL |
 
-Most charts map **dimension1 / dimension2 / measure**. **Voronoi** additionally
-uses a second numeric measure (an X/Y pair), exposed as a **Value Y** field that
-only appears when Voronoi is selected.
+Most charts map **dimension1 / dimension2 / measure**; some add a second numeric
+measure (Voronoi, Hexbin, Scatter) for an X/Y pair.
+
+**Author formatting** (in the plugin panel, for every chart): color **Palette**
+(11 built-in + Custom swatches + Reverse), **Aggregation** (Sum/Avg/Count/Min/Max/
+Median), **Number Format**, **Font**, **Text Size**, **Background**, **Accent**, and
+**Appearance** (Auto/Light/Dark, Auto follows the workbook theme).
+
+> **For contributors / AI tools:** see [CLAUDE.md](CLAUDE.md) for architecture,
+> conventions, the chart-component contract, and Sigma plugin gotchas.
 
 ## Quick Start
 
