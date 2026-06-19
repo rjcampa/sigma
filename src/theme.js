@@ -22,6 +22,25 @@ export const FONT_OPTIONS = Object.keys(FONT_STACKS); // ["Inter","System","Seri
 const SIZE_SCALE = { Small: 0.9, Medium: 1, Large: 1.18 };
 export const SIZE_OPTIONS = Object.keys(SIZE_SCALE); // ["Small","Medium","Large"]
 
+// Padding & border controls for the chart frame (keeps charts off the edge).
+const PAD = { None: 0, Small: 10, Medium: 18, Large: 30 };
+const BORDER_W = { None: 0, Subtle: 1, Bold: 2 };
+export const PADDING_OPTIONS = Object.keys(PAD);   // ["None","Small","Medium","Large"]
+export const BORDER_OPTIONS = Object.keys(BORDER_W); // ["None","Subtle","Bold"]
+
+/** Inline style for the chart wrapper — padding + optional border/rounding. */
+export function frameStyle(config, theme) {
+  const pad = PAD[config?.padding] ?? PAD.Small;
+  const bw = BORDER_W[config?.border] ?? 0;
+  return {
+    padding: pad,
+    boxSizing: "border-box",
+    ...(bw
+      ? { border: `${bw}px solid ${theme?.border ?? "#e5e5e5"}`, borderRadius: 10 }
+      : {}),
+  };
+}
+
 const LIGHT = {
   background: "#ffffff",
   text: "#333333",

@@ -30,6 +30,30 @@ export const CHART_TYPES = [
   "KPI", "Gauge", "Waterfall", "CohortRetention", "CohortPnL",
 ];
 
+// Glyph per chart for the Chart Type dropdown. Sigma renders the panel dropdown
+// from plain strings (no SVG/icon support), so an emoji prefix is the only way to
+// give a visual cue. The emoji is stripped when routing (see App.jsx).
+export const CHART_ICONS = {
+  Heatmap: "🟦", Calendar: "📅",
+  Treemap: "🟩", Sunburst: "☀️", CirclePacking: "🫧", Tree: "🌳", Icicle: "🧊",
+  Pie: "🥧", Waffle: "🧇", Funnel: "🔻",
+  Sankey: "🔀", Chord: "🔵", Network: "🕸️", ForceGraph: "🪐",
+  Line: "📈", Bump: "🏁", AreaBump: "🌊", Stream: "〰️",
+  Radar: "📡", RadialBar: "🎯", Bullet: "📍", Marimekko: "🧱", ParallelCoordinates: "📶",
+  Scatter: "✨", SwarmPlot: "🐝", BoxPlot: "📦", Voronoi: "🔷",
+  Histogram: "📊", Ridgeline: "🏔️", Hexbin: "🔶",
+  KPI: "#️⃣", Gauge: "⏲️", Waterfall: "🪜", CohortRetention: "🔥", CohortPnL: "💰",
+};
+
+// Iconed labels for the panel dropdown (same order/grouping as CHART_TYPES).
+export const CHART_TYPE_LABELS = CHART_TYPES.map(
+  (t) => `${CHART_ICONS[t] ? CHART_ICONS[t] + " " : ""}${t}`
+);
+
+// Strip a leading emoji/glyph prefix back to the clean chart-type name.
+export const cleanChartType = (raw) =>
+  String(raw || "").replace(/^[^A-Za-z]+/, "") || CHART_TYPES[0];
+
 export const CHART_COMPONENTS = {
   Heatmap: lazy(() => import("./plugins/Heatmap")),
   Calendar: lazy(() => import("./plugins/Calendar")),

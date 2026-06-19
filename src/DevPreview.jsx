@@ -1,6 +1,6 @@
 import { useState, Suspense } from "react";
-import { CHART_TYPES, CHART_COMPONENTS } from "./charts";
-import { buildTheme } from "./theme";
+import { CHART_TYPES, CHART_COMPONENTS, CHART_ICONS } from "./charts";
+import { buildTheme, frameStyle } from "./theme";
 import { AGG_METHODS } from "./aggregate";
 import { PALETTE_OPTIONS } from "./palette";
 
@@ -158,6 +158,8 @@ export default function DevPreview() {
   const numberFormat = qp.get("nfmt") || "Auto";
   const accentColor = qp.get("accent") || undefined;
   const reverseColors = qp.get("reverse") === "1";
+  const padding = qp.get("pad") || "Small";
+  const border = qp.get("border") || "None";
   // Custom palette test: ?palette=Custom&colors=ff0000,00aa55,3333ff,...
   const custom = (qp.get("colors") || "").split(",").filter(Boolean).map((h) => "#" + h.replace(/^#/, ""));
 
@@ -179,6 +181,8 @@ export default function DevPreview() {
     background,
     numberFormat,
     accentColor,
+    padding,
+    border,
     showLabels: true,
     title: qp.get("title") || "",
     appearance,
@@ -214,7 +218,7 @@ export default function DevPreview() {
         <label style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 6 }}>
           Chart
           <select style={selStyle} value={chartType} onChange={(e) => setChartType(e.target.value)}>
-            {CHART_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
+            {CHART_TYPES.map((t) => <option key={t} value={t}>{`${CHART_ICONS[t] ?? ""} ${t}`}</option>)}
           </select>
         </label>
 
@@ -244,7 +248,7 @@ export default function DevPreview() {
         </span>
       </div>
 
-      <div style={{ flex: 1, minHeight: 0, background: theme.background }}>
+      <div style={{ flex: 1, minHeight: 0, background: theme.background, ...frameStyle(config, theme) }}>
         <Suspense fallback={
           <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100%", color: theme.muted, fontSize: 13 }}>
             Loading chart…

@@ -9,10 +9,10 @@ import {
   useVariable,
   usePluginStyle,
 } from "@sigmacomputing/plugin";
-import { buildTheme, FONT_OPTIONS, SIZE_OPTIONS } from "./theme";
+import { buildTheme, FONT_OPTIONS, SIZE_OPTIONS, PADDING_OPTIONS, BORDER_OPTIONS, frameStyle } from "./theme";
 import { AGG_METHODS } from "./aggregate";
 import { PALETTE_OPTIONS } from "./palette";
-import { CHART_TYPES, CHART_COMPONENTS } from "./charts";
+import { CHART_COMPONENTS, CHART_TYPE_LABELS, cleanChartType } from "./charts";
 
 // Dynamic sidebar labels per chart type
 const DIM1_LABELS = {
@@ -83,7 +83,7 @@ export default function App() {
   const [loading, setLoading] = useLoadingState(true);
   const config = useConfig();
 
-  const chartType = config.chartType || "Heatmap";
+  const chartType = cleanChartType(config.chartType);
   const showDim2 = !HIDE_DIM2.has(chartType);
 
   // --------------------------------------------------
@@ -91,7 +91,7 @@ export default function App() {
   // --------------------------------------------------
   const panelConfig = [
     { type: "dropdown", name: "chartType", label: "Chart Type",
-      values: CHART_TYPES, defaultValue: "Heatmap" },
+      values: CHART_TYPE_LABELS, defaultValue: CHART_TYPE_LABELS[0] },
 
     { type: "element", name: "source", label: "Data Source" },
 
@@ -163,6 +163,10 @@ export default function App() {
       values: FONT_OPTIONS, defaultValue: "Inter" },
     { type: "dropdown", name: "textSize", label: "Text Size",
       values: SIZE_OPTIONS, defaultValue: "Medium" },
+    { type: "dropdown", name: "padding", label: "Padding",
+      values: PADDING_OPTIONS, defaultValue: "Small" },
+    { type: "dropdown", name: "border", label: "Border",
+      values: BORDER_OPTIONS, defaultValue: "None" },
     { type: "color", name: "background", label: "Background" },
     // Number format — applies to value labels & tooltips across the charts
     { type: "dropdown", name: "numberFormat", label: "Number Format",
@@ -313,7 +317,7 @@ export default function App() {
           </button>
         </div>
       )}
-      <div style={{ flex: 1, minHeight: 0 }}>
+      <div style={{ flex: 1, minHeight: 0, ...frameStyle(config, theme) }}>
         <Suspense fallback={
           <div style={{
             display: "flex", alignItems: "center", justifyContent: "center",
