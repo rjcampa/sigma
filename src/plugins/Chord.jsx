@@ -69,8 +69,8 @@ export default function Chord({ config, sigmaData, setLoading, onSelect, theme }
     <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column" }}>
       {config.title && (
         <div style={{
-          textAlign: "center", padding: "8px 0", fontSize: 16,
-          fontWeight: 600, fontFamily: "'Inter Variable', system-ui, sans-serif", color: theme?.text ?? "#333", flexShrink: 0,
+          textAlign: "center", padding: "8px 0", fontSize: theme?.titleSize ?? 16,
+          fontWeight: 600, fontFamily: theme?.font ?? "'Inter Variable', system-ui, sans-serif", color: theme?.text ?? "#333", flexShrink: 0,
         }}>
           {config.title}
         </div>

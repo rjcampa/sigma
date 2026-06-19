@@ -79,7 +79,7 @@ export default function CohortRetention({ config, sigmaData, setLoading, theme }
   return (
     <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column" }}>
       {config.title && (
-        <div style={{ textAlign: "center", padding: "8px 0", fontSize: 16, fontWeight: 600, color: ink, flexShrink: 0 }}>
+        <div style={{ textAlign: "center", padding: "8px 0", fontSize: theme?.titleSize ?? 16, fontWeight: 600, color: ink, flexShrink: 0 }}>
           {config.title}
         </div>
       )}

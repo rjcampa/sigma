@@ -77,7 +77,8 @@ export default function CohortPnL({ config, sigmaData, columns, setLoading, them
   const zebra = theme?.isDark ? "rgba(255,255,255,0.025)" : "rgba(15,23,42,0.02)";
   const neg = "#dc2626";
 
-  const fmt = (v) => (v == null ? "—" : v < 0 ? `(${formatNum(Math.abs(v))})` : formatNum(v));
+  const nf = config.numberFormat;
+  const fmt = (v) => (v == null ? "—" : v < 0 ? `(${formatNum(Math.abs(v), nf)})` : formatNum(v, nf));
   const valColor = (v) => (v == null ? muted : v < 0 ? neg : ink);
 
   const th = {
@@ -93,7 +94,7 @@ export default function CohortPnL({ config, sigmaData, columns, setLoading, them
   return (
     <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column" }}>
       {config.title && (
-        <div style={{ textAlign: "center", padding: "8px 0", fontSize: 16, fontWeight: 600, color: ink, flexShrink: 0 }}>
+        <div style={{ textAlign: "center", padding: "8px 0", fontSize: theme?.titleSize ?? 16, fontWeight: 600, color: ink, flexShrink: 0 }}>
           {config.title}
         </div>
       )}

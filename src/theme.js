@@ -9,6 +9,19 @@
 export const FONT =
   "'Inter Variable', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif";
 
+// Selectable font families (the editor-panel "Font" control).
+export const FONT_STACKS = {
+  Inter: FONT,
+  System: "system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif",
+  Serif: "Georgia, Cambria, 'Times New Roman', serif",
+  Mono: "ui-monospace, 'SF Mono', 'Cascadia Mono', 'Roboto Mono', Menlo, Consolas, monospace",
+};
+export const FONT_OPTIONS = Object.keys(FONT_STACKS); // ["Inter","System","Serif","Mono"]
+
+// Text-size control → multiplier applied to all chart/label/title type.
+const SIZE_SCALE = { Small: 0.9, Medium: 1, Large: 1.18 };
+export const SIZE_OPTIONS = Object.keys(SIZE_SCALE); // ["Small","Medium","Large"]
+
 const LIGHT = {
   background: "#ffffff",
   text: "#333333",
@@ -66,56 +79,68 @@ export function isDarkColor(c) {
  * @param {"Auto"|"Light"|"Dark"} opts.appearance  author override (Auto follows workbook)
  * @param {string} [opts.pluginBackground]          backgroundColor from usePluginStyle()
  * @param {string} [opts.accent]                    author-picked accent color
+ * @param {"Inter"|"System"|"Serif"|"Mono"} [opts.font]   font family choice
+ * @param {"Small"|"Medium"|"Large"} [opts.size]    text-size choice
+ * @param {string} [opts.background]                author background override (beats Auto)
  */
-export function buildTheme({ appearance = "Auto", pluginBackground, accent } = {}) {
+export function buildTheme({ appearance = "Auto", pluginBackground, accent, font, size, background } = {}) {
+  // A background override drives light/dark text too, so text always contrasts.
+  const hasOverride = !!parseColor(background);
   let dark;
-  if (appearance === "Dark") dark = true;
+  if (hasOverride) dark = isDarkColor(background);
+  else if (appearance === "Dark") dark = true;
   else if (appearance === "Light") dark = false;
   else dark = isDarkColor(pluginBackground); // Auto: follow the workbook
 
   const base = dark ? DARK : LIGHT;
 
-  // In Auto mode, honor the workbook's exact background if we could parse it.
-  const background =
-    appearance === "Auto" && parseColor(pluginBackground)
+  // Background precedence: explicit author override → workbook (Auto) → theme default.
+  const bg = hasOverride
+    ? background
+    : appearance === "Auto" && parseColor(pluginBackground)
       ? pluginBackground
       : base.background;
 
   const accentColor = accent || (dark ? "#5b8cff" : "#2f6feb");
+  const fontFamily = FONT_STACKS[font] || FONT;
+  const k = SIZE_SCALE[size] ?? 1;
+  const fs = (n) => Math.round(n * k); // size-scaled font size
 
   return {
     isDark: dark,
-    background,
+    background: bg,
     text: base.text,
     muted: base.muted,
     border: base.border,
     panel: base.panel,
     accent: accentColor,
+    font: fontFamily,
+    titleSize: fs(16),
     // Spread into any Nivo Responsive* component via `theme={theme.nivo}`.
     // background mirrors the container so charts that use `{ theme: "background" }`
     // (e.g. punched-out points) still resolve to the right color.
     nivo: {
-      background,
-      fontFamily: FONT,
-      fontSize: 12,
-      text: { fontFamily: FONT, fontSize: 12, fill: base.text },
+      background: bg,
+      fontFamily,
+      fontSize: fs(12),
+      text: { fontFamily, fontSize: fs(12), fill: base.text },
       axis: {
         domain: { line: { stroke: base.border, strokeWidth: 1 } },
         ticks: {
           line: { stroke: base.border, strokeWidth: 1 },
-          text: { fontFamily: FONT, fontSize: 11, fill: base.muted },
+          text: { fontFamily, fontSize: fs(11), fill: base.muted },
         },
-        legend: { text: { fontFamily: FONT, fontSize: 12, fontWeight: 600, fill: base.text } },
+        legend: { text: { fontFamily, fontSize: fs(12), fontWeight: 600, fill: base.text } },
       },
       grid: { line: { stroke: base.border, strokeWidth: 1, strokeDasharray: "2 4" } },
-      legends: { text: { fontFamily: FONT, fontSize: 11, fill: base.muted } },
-      labels: { text: { fontFamily: FONT, fontSize: 11, fontWeight: 600 } },
+      legends: { text: { fontFamily, fontSize: fs(11), fill: base.muted } },
+      labels: { text: { fontFamily, fontSize: fs(11), fontWeight: 600 } },
       tooltip: {
         container: {
           background: base.tooltipBg,
           color: base.text,
-          fontFamily: FONT,
-          fontSize: 12,
+          fontFamily,
+          fontSize: fs(12),
           borderRadius: 8,
           border: `1px solid ${base.border}`,
           boxShadow: dark

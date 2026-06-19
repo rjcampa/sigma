@@ -42,7 +42,7 @@ export default function Waterfall({ config, sigmaData, setLoading, theme }) {
   }, [steps, setLoading]);
 
   const [ref, { width, height }] = useContainerSize();
-  const accent = ACCENT[config.colorScheme] || ACCENT.blues;
+  const accent = config.accentColor || ACCENT[config.colorScheme] || ACCENT.blues;
 
   if (!steps.length) {
     return (
@@ -84,7 +84,7 @@ export default function Waterfall({ config, sigmaData, setLoading, theme }) {
   return (
     <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column" }}>
       {config.title && (
-        <div style={{ textAlign: "center", padding: "8px 0", fontSize: 16, fontWeight: 600, color: ink, flexShrink: 0 }}>
+        <div style={{ textAlign: "center", padding: "8px 0", fontSize: theme?.titleSize ?? 16, fontWeight: 600, color: ink, flexShrink: 0 }}>
           {config.title}
         </div>
       )}
@@ -94,7 +94,7 @@ export default function Waterfall({ config, sigmaData, setLoading, theme }) {
             {tickVals.map((tv, i) => (
               <g key={i}>
                 <line x1={mL} x2={W - mR} y1={y(tv)} y2={y(tv)} stroke={border} strokeWidth={1} strokeDasharray="2 4" />
-                <text x={mL - 8} y={y(tv) + 4} textAnchor="end" style={{ fontSize: 11, fill: muted }}>{formatNum(tv)}</text>
+                <text x={mL - 8} y={y(tv) + 4} textAnchor="end" style={{ fontSize: 11, fill: muted }}>{formatNum(tv, config.numberFormat)}</text>
               </g>
             ))}
             <line x1={mL} x2={W - mR} y1={y(0)} y2={y(0)} stroke={muted} strokeWidth={1} />
@@ -117,7 +117,7 @@ export default function Waterfall({ config, sigmaData, setLoading, theme }) {
                   )}
                   <rect x={x} y={yTop} width={bw} height={h} fill={color} rx={2} opacity={0.92} />
                   <text x={cx} y={yTop - 5} textAnchor="middle" style={{ fontSize: 11, fontWeight: 600, fill: ink }}>
-                    {(b.delta >= 0 && !b.total ? "+" : "") + formatNum(b.delta)}
+                    {(b.delta >= 0 && !b.total ? "+" : "") + formatNum(b.delta, config.numberFormat)}
                   </text>
                   <text x={cx} y={H - mB + 18} textAnchor="middle" style={{ fontSize: 11, fill: muted }}>
                     {b.label.length > 11 ? b.label.slice(0, 10) + "…" : b.label}

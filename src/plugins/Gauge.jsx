@@ -58,7 +58,7 @@ export default function Gauge({ config, sigmaData, setLoading, theme }) {
     if (value != null) setLoading(false);
   }, [value, setLoading]);
 
-  const accent = ACCENT[config.colorScheme] || ACCENT.blues;
+  const accent = config.accentColor || ACCENT[config.colorScheme] || ACCENT.blues;
   if (value == null) {
     return (
       <div style={{ padding: 20, color: theme?.muted ?? "#999", textAlign: "center" }}>
@@ -80,7 +80,7 @@ export default function Gauge({ config, sigmaData, setLoading, theme }) {
     <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column" }}>
       {config.title && (
         <div style={{
-          textAlign: "center", padding: "8px 0", fontSize: 16,
+          textAlign: "center", padding: "8px 0", fontSize: theme?.titleSize ?? 16,
           fontWeight: 600, color: ink, flexShrink: 0,
         }}>
           {config.title}
@@ -96,10 +96,10 @@ export default function Gauge({ config, sigmaData, setLoading, theme }) {
             stroke={ink} strokeWidth={3} strokeLinecap="round" />
           <circle cx={cx} cy={cy} r={6} fill={ink} />
           <text x={cx} y={cy + 46} textAnchor="middle" style={{ fontSize: 28, fontWeight: 700, fill: ink }}>
-            {formatNum(value)}
+            {formatNum(value, config.numberFormat)}
           </text>
           <text x={cx} y={cy + 64} textAnchor="middle" style={{ fontSize: 12, fill: muted }}>
-            {Math.round(ratio * 100)}% of {formatNum(max)}
+            {Math.round(ratio * 100)}% of {formatNum(max, config.numberFormat)}
           </text>
         </svg>
       </div>

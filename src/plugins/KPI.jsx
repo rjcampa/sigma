@@ -57,7 +57,7 @@ export default function KPI({ config, sigmaData, columns, setLoading, theme }) {
   }, [value, setLoading]);
 
   const [ref, size] = useContainerSize();
-  const accent = ACCENT[config.colorScheme] || ACCENT.blues;
+  const accent = config.accentColor || ACCENT[config.colorScheme] || ACCENT.blues;
   const label = config.title || columns?.[config.measure]?.name || "Metric";
 
   if (value == null) {
@@ -68,7 +68,7 @@ export default function KPI({ config, sigmaData, columns, setLoading, theme }) {
     );
   }
 
-  const numStr = formatNum(value);
+  const numStr = formatNum(value, config.numberFormat);
   const fontSize = Math.max(
     28,
     Math.min((size.height || 200) * 0.34, (size.width || 300) / (numStr.length * 0.62))

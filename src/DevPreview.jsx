@@ -148,7 +148,15 @@ export default function DevPreview() {
   );
   const [clicked, setClicked] = useState(null);
 
-  const theme = buildTheme({ appearance });
+  // Optional style deep-links for testing: ?font=Serif&size=Large&bg=%23111&nfmt=Currency&title=...
+  const qp = new URLSearchParams(window.location.search);
+  const font = qp.get("font") || "Inter";
+  const textSize = qp.get("size") || "Medium";
+  const background = qp.get("bg") || undefined;
+  const numberFormat = qp.get("nfmt") || "Auto";
+  const accentColor = qp.get("accent") || undefined;
+
+  const theme = buildTheme({ appearance, font, size: textSize, background, accent: accentColor });
   const ChartComponent = CHART_COMPONENTS[chartType] || CHART_COMPONENTS.Heatmap;
 
   const config = {
@@ -158,8 +166,13 @@ export default function DevPreview() {
     colorScheme,
     aggregation,
     cumulative: new URLSearchParams(window.location.search).get("cumulative") === "1",
+    font,
+    textSize,
+    background,
+    numberFormat,
+    accentColor,
     showLabels: true,
-    title: "",
+    title: qp.get("title") || "",
     appearance,
   };
 

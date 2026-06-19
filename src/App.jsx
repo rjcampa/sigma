@@ -9,7 +9,7 @@ import {
   useVariable,
   usePluginStyle,
 } from "@sigmacomputing/plugin";
-import { buildTheme } from "./theme";
+import { buildTheme, FONT_OPTIONS, SIZE_OPTIONS } from "./theme";
 import { AGG_METHODS } from "./aggregate";
 import { CHART_TYPES, CHART_COMPONENTS } from "./charts";
 
@@ -77,6 +77,9 @@ const HIDE_AGG = new Set([
 // Charts that expose a "Cumulative" toggle (running-sum the series).
 const CUMULATIVE_CHARTS = new Set(["Line"]);
 
+// Charts whose value labels respect the "Number Format" control.
+const NUMBER_FORMAT_CHARTS = new Set(["KPI", "Gauge", "Waterfall", "CohortPnL"]);
+
 export default function App() {
   const [loading, setLoading] = useLoadingState(true);
   const config = useConfig();
@@ -143,8 +146,19 @@ export default function App() {
     // Appearance — Auto follows the workbook theme (via usePluginStyle)
     { type: "radio", name: "appearance", label: "Appearance",
       values: ["Auto", "Light", "Dark"], defaultValue: "Auto", singleLine: true },
-    // Native Sigma color picker — themes the selection chip & chart accents
+    // Native Sigma color picker — accent for the selection chip & business charts
     { type: "color", name: "accentColor", label: "Accent Color" },
+    // Typography & surface
+    { type: "dropdown", name: "font", label: "Font",
+      values: FONT_OPTIONS, defaultValue: "Inter" },
+    { type: "dropdown", name: "textSize", label: "Text Size",
+      values: SIZE_OPTIONS, defaultValue: "Medium" },
+    { type: "color", name: "background", label: "Background" },
+    // Number format (value-label charts only)
+    ...(NUMBER_FORMAT_CHARTS.has(chartType)
+      ? [{ type: "dropdown", name: "numberFormat", label: "Number Format",
+           values: ["Auto", "Full", "Currency", "Percent"], defaultValue: "Auto" }]
+      : []),
 
     // Actions — fire when a user clicks a chart element
     { type: "action-trigger", name: "onSelect", label: "On Element Click" },
@@ -163,6 +177,9 @@ export default function App() {
     appearance: config.appearance,
     pluginBackground: pluginStyle?.backgroundColor,
     accent: config.accentColor,
+    font: config.font,
+    size: config.textSize,
+    background: config.background,
   });
 
   const columns = useElementColumns(config.source);
@@ -235,7 +252,7 @@ export default function App() {
 
   if (!isConfigured) {
     return (
-      <div style={{ ...styles.placeholder, backgroundColor: theme.background }}>
+      <div style={{ ...styles.placeholder, backgroundColor: theme.background, fontFamily: theme.font }}>
         <div style={styles.placeholderIcon}>📊</div>
         <div style={{ ...styles.placeholderTitle, color: theme.text }}>Custom Visualization Plugin</div>
         <div style={{ ...styles.placeholderText, color: theme.muted }}>
@@ -248,7 +265,7 @@ export default function App() {
 
   if (!hasData) {
     return (
-      <div style={{ ...styles.placeholder, backgroundColor: theme.background }}>
+      <div style={{ ...styles.placeholder, backgroundColor: theme.background, fontFamily: theme.font }}>
         <div style={{ ...styles.placeholderText, color: theme.muted }}>Waiting for data…</div>
       </div>
     );
@@ -267,7 +284,7 @@ export default function App() {
   return (
     <div style={{
       width: "100%", height: "100%", display: "flex", flexDirection: "column",
-      backgroundColor: theme.background,
+      backgroundColor: theme.background, fontFamily: theme.font,
     }}>
       {hasSelection && (
         <div style={{
