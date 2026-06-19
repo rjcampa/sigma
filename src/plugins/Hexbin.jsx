@@ -1,6 +1,10 @@
 import { useMemo, useEffect, useCallback } from "react";
 import * as Plot from "@observablehq/plot";
 import PlotFigure from "./PlotFigure";
+import { rampColors } from "../palette";
+
+const colorKey = (c) =>
+  [c.colorScheme, c.reverseColors, c.color1, c.color2, c.color3, c.color4, c.color5, c.color6].join("|");
 
 /**
  * Hexbin Plugin (Observable Plot)
@@ -35,20 +39,21 @@ export default function Hexbin({ config, sigmaData, columns, setLoading, theme }
 
   const xName = columns?.[config.measure]?.name || "Value X";
   const yName = columns?.[config.measure2]?.name || "Value Y";
-  const scheme = config.colorScheme || "blues";
+  const ckey = colorKey(config);
+  const font = theme?.font ?? "'Inter Variable', system-ui, sans-serif";
   const text = theme?.text ?? "#333";
 
   const render = useCallback((width, height) => ({
     width, height,
     marginLeft: 54, marginRight: 16, marginTop: 16, marginBottom: 44,
-    style: { background: "transparent", color: text, fontFamily: theme?.font ?? "'Inter Variable', system-ui, sans-serif" },
+    style: { background: "transparent", color: text, fontFamily: font },
     x: { label: xName, grid: true },
     y: { label: yName, grid: true },
-    color: { scheme, legend: true, label: "Count" },
+    color: { range: rampColors(config), legend: true, label: "Count" },
     marks: [
       Plot.hexagon(rows, Plot.hexbin({ fill: "count" }, { x: "x", y: "y", tip: true })),
     ],
-  }), [rows, xName, yName, scheme, text]);
+  }), [rows, xName, yName, ckey, font, text]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (!config.measure2) {
     return (

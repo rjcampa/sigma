@@ -1,4 +1,5 @@
 import { useMemo, useEffect } from "react";
+import { catColors } from "../palette";
 import { ResponsiveAreaBump } from "@nivo/bump";
 import { aggregate } from "../aggregate";
 
@@ -54,11 +55,6 @@ export default function AreaBump({ config, sigmaData, setLoading, onSelect, them
     );
   }
 
-  const schemeMap = {
-    blues: "blues", greens: "greens", reds: "reds", oranges: "oranges",
-    purples: "purples", blue_green: "blue_green", yellow_green: "yellow_green",
-  };
-
   return (
     <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column" }}>
       {config.title && (
@@ -75,7 +71,7 @@ export default function AreaBump({ config, sigmaData, setLoading, onSelect, them
           theme={theme?.nivo}
           margin={{ top: 40, right: 100, bottom: 40, left: 100 }}
           spacing={8}
-          colors={{ scheme: schemeMap[config.colorScheme] || "blues" }}
+          colors={catColors(config)}
           blendMode="multiply"
           borderColor={{ from: "color", modifiers: [["darker", 0.4]] }}
           startLabel={config.showLabels ?? true ? "id" : false}

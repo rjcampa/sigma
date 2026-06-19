@@ -1,6 +1,10 @@
 import { useMemo, useEffect, useCallback } from "react";
 import * as Plot from "@observablehq/plot";
 import PlotFigure from "./PlotFigure";
+import { catColors } from "../palette";
+
+const colorKey = (c) =>
+  [c.colorScheme, c.reverseColors, c.color1, c.color2, c.color3, c.color4, c.color5, c.color6].join("|");
 
 /**
  * Ridgeline Plugin (Observable Plot)
@@ -32,25 +36,26 @@ export default function Ridgeline({ config, sigmaData, columns, setLoading, them
   }, [rows, setLoading]);
 
   const measureName = columns?.[config.measure]?.name || "Value";
-  const scheme = config.colorScheme || "blues";
+  const ckey = colorKey(config);
+  const font = theme?.font ?? "'Inter Variable', system-ui, sans-serif";
   const text = theme?.text ?? "#333";
   const border = theme?.border ?? "#e5e5e5";
 
   const render = useCallback((width, height) => ({
     width, height,
     marginLeft: 96, marginRight: 20, marginTop: 16, marginBottom: 40,
-    style: { background: "transparent", color: text, fontFamily: theme?.font ?? "'Inter Variable', system-ui, sans-serif" },
+    style: { background: "transparent", color: text, fontFamily: font },
     x: { label: measureName },
     y: { axis: null },
     fy: { label: null },
-    color: { scheme },
+    color: { range: catColors(config) },
     marks: [
       Plot.areaY(rows, Plot.binX({ y2: "count" }, {
         x: "v", fy: "g", fill: "g", fillOpacity: 0.75, curve: "basis",
       })),
       Plot.ruleY([0], { stroke: border }),
     ],
-  }), [rows, measureName, scheme, text, border]);
+  }), [rows, measureName, ckey, font, text, border]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (!rows.length) {
     return (

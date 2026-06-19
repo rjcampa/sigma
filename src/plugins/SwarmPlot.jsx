@@ -1,4 +1,5 @@
 import { useMemo, useEffect } from "react";
+import { catColors } from "../palette";
 import { ResponsiveSwarmPlot } from "@nivo/swarmplot";
 
 /**
@@ -45,11 +46,6 @@ export default function SwarmPlot({ config, sigmaData, setLoading, onSelect, the
     );
   }
 
-  const schemeMap = {
-    blues: "blues", greens: "greens", reds: "reds", oranges: "oranges",
-    purples: "purples", blue_green: "blue_green", yellow_green: "yellow_green",
-  };
-
   return (
     <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column" }}>
       {config.title && (
@@ -71,7 +67,7 @@ export default function SwarmPlot({ config, sigmaData, setLoading, onSelect, the
           forceStrength={4}
           simulationIterations={100}
           margin={{ top: 80, right: 100, bottom: 80, left: 100 }}
-          colors={{ scheme: schemeMap[config.colorScheme] || "blues" }}
+          colors={catColors(config)}
           borderWidth={0}
           borderColor={{ from: "color", modifiers: [["darker", 0.6]] }}
           enableGridX={true}

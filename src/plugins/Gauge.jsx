@@ -1,4 +1,5 @@
 import { useMemo, useEffect } from "react";
+import { solidColor } from "../palette";
 import { aggregate } from "../aggregate";
 import { formatNum } from "../format";
 
@@ -11,11 +12,6 @@ import { formatNum } from "../format";
  *   - measure: the value (aggregated)
  *   - dimension2: optional numeric target/max (aggregated); defaults to value×1.25
  */
-
-const ACCENT = {
-  blues: "#2171b5", greens: "#238b45", reds: "#cb181d", oranges: "#d94801",
-  purples: "#6a51a3", blue_green: "#2b8cbe", yellow_green: "#41ab5d",
-};
 
 const polar = (cx, cy, r, deg) => {
   const a = ((deg - 90) * Math.PI) / 180;
@@ -58,7 +54,7 @@ export default function Gauge({ config, sigmaData, setLoading, theme }) {
     if (value != null) setLoading(false);
   }, [value, setLoading]);
 
-  const accent = config.accentColor || ACCENT[config.colorScheme] || ACCENT.blues;
+  const accent = config.accentColor || solidColor(config);
   if (value == null) {
     return (
       <div style={{ padding: 20, color: theme?.muted ?? "#999", textAlign: "center" }}>

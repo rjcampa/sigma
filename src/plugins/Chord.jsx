@@ -1,4 +1,5 @@
 import { useMemo, useEffect } from "react";
+import { catColors } from "../palette";
 import { ResponsiveChord } from "@nivo/chord";
 import { aggregate } from "../aggregate";
 
@@ -60,11 +61,6 @@ export default function Chord({ config, sigmaData, setLoading, onSelect, theme }
     );
   }
 
-  const schemeMap = {
-    blues: "blues", greens: "greens", reds: "reds", oranges: "oranges",
-    purples: "purples", blue_green: "blue_green", yellow_green: "yellow_green",
-  };
-
   return (
     <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column" }}>
       {config.title && (
@@ -90,7 +86,7 @@ export default function Chord({ config, sigmaData, setLoading, onSelect, theme }
           activeRibbonOpacity={0.75}
           inactiveRibbonOpacity={0.25}
           ribbonBorderColor={{ from: "color", modifiers: [["darker", 0.6]] }}
-          colors={{ scheme: schemeMap[config.colorScheme] || "blues" }}
+          colors={catColors(config)}
           enableLabel={config.showLabels ?? true}
           label="id"
           labelOffset={12}

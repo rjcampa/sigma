@@ -2,6 +2,7 @@ import { useState, Suspense } from "react";
 import { CHART_TYPES, CHART_COMPONENTS } from "./charts";
 import { buildTheme } from "./theme";
 import { AGG_METHODS } from "./aggregate";
+import { PALETTE_OPTIONS } from "./palette";
 
 /**
  * Standalone DEV PREVIEW — renders the chart components with mock data so you
@@ -92,7 +93,7 @@ const COLUMNS = {
   amount: { id: "amount", name: "Amount", columnType: "number" },
 };
 
-const SCHEMES = ["blues", "greens", "reds", "oranges", "purples", "blue_green", "yellow_green"];
+const SCHEMES = [...PALETTE_OPTIONS, "Custom"];
 
 // Per-chart sensible column mapping against the mock columns above.
 function demoConfigFor(chartType) {
@@ -141,7 +142,8 @@ export default function DevPreview() {
     CHART_TYPES.includes(initialChart) ? initialChart : "Heatmap"
   );
   const [appearance, setAppearance] = useState("Light");
-  const [colorScheme, setColorScheme] = useState("blues");
+  const initialPalette = new URLSearchParams(window.location.search).get("palette");
+  const [colorScheme, setColorScheme] = useState(SCHEMES.includes(initialPalette) ? initialPalette : "Sigma");
   const initialAgg = new URLSearchParams(window.location.search).get("agg");
   const [aggregation, setAggregation] = useState(
     AGG_METHODS.includes(initialAgg) ? initialAgg : "Sum"
@@ -155,6 +157,9 @@ export default function DevPreview() {
   const background = qp.get("bg") || undefined;
   const numberFormat = qp.get("nfmt") || "Auto";
   const accentColor = qp.get("accent") || undefined;
+  const reverseColors = qp.get("reverse") === "1";
+  // Custom palette test: ?palette=Custom&colors=ff0000,00aa55,3333ff,...
+  const custom = (qp.get("colors") || "").split(",").filter(Boolean).map((h) => "#" + h.replace(/^#/, ""));
 
   const theme = buildTheme({ appearance, font, size: textSize, background, accent: accentColor });
   const ChartComponent = CHART_COMPONENTS[chartType] || CHART_COMPONENTS.Heatmap;
@@ -164,6 +169,9 @@ export default function DevPreview() {
     source: "demo",
     ...demoConfigFor(chartType),
     colorScheme,
+    reverseColors,
+    color1: custom[0], color2: custom[1], color3: custom[2],
+    color4: custom[3], color5: custom[4], color6: custom[5],
     aggregation,
     cumulative: new URLSearchParams(window.location.search).get("cumulative") === "1",
     font,

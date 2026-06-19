@@ -1,4 +1,5 @@
 import { useMemo, useEffect } from "react";
+import { catColors } from "../palette";
 import { ResponsiveBoxPlot } from "@nivo/boxplot";
 
 /**
@@ -52,11 +53,6 @@ export default function BoxPlot({ config, sigmaData, setLoading, onSelect, theme
       </div>
     );
   }
-
-  const schemeMap = {
-    blues: "blues", greens: "greens", reds: "reds", oranges: "oranges",
-    purples: "purples", blue_green: "blue_green", yellow_green: "yellow_green",
-  };
   const hasSub = !!config.dimension2;
 
   return (
@@ -81,7 +77,7 @@ export default function BoxPlot({ config, sigmaData, setLoading, onSelect, theme
           margin={{ top: 40, right: hasSub ? 140 : 40, bottom: 60, left: 70 }}
           padding={0.3}
           colorBy={hasSub ? "subGroup" : "group"}
-          colors={{ scheme: schemeMap[config.colorScheme] || "blues" }}
+          colors={catColors(config)}
           borderWidth={2}
           borderColor={{ from: "color", modifiers: [["darker", 0.4]] }}
           medianWidth={2}

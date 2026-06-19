@@ -1,4 +1,5 @@
 import { useMemo, useEffect } from "react";
+import { rampColors } from "../palette";
 import { ResponsiveCalendar } from "@nivo/calendar";
 import { aggregate } from "../aggregate";
 
@@ -13,16 +14,6 @@ import { aggregate } from "../aggregate";
  *   - dimension1: date column (datetime values)
  *   - measure: numeric value for each day (aggregated if multiple rows/day)
  */
-
-const COLOR_STOPS = {
-  blues:        ["#deebf7", "#9ecae1", "#4292c6", "#084594"],
-  greens:       ["#e5f5e0", "#a1d99b", "#41ab5d", "#005a32"],
-  reds:         ["#fee5d9", "#fcae91", "#fb6a4a", "#cb181d"],
-  oranges:      ["#feedde", "#fdbe85", "#fd8d3c", "#d94701"],
-  purples:      ["#f2f0f7", "#b4b4d8", "#8073ac", "#4a1486"],
-  blue_green:   ["#e0f3db", "#a8ddb5", "#43a2ca", "#0868ac"],
-  yellow_green: ["#ffffcc", "#c2e699", "#78c679", "#238443"],
-};
 
 function toYMD(raw) {
   if (raw == null) return null;
@@ -73,7 +64,7 @@ export default function Calendar({ config, sigmaData, setLoading, onSelect, them
     );
   }
 
-  const colors = COLOR_STOPS[config.colorScheme] || COLOR_STOPS.blues;
+  const colors = rampColors(config);
 
   return (
     <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column" }}>

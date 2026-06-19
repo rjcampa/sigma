@@ -1,4 +1,5 @@
 import { useMemo, useEffect } from "react";
+import { rampColors } from "../palette";
 import { ResponsiveTree } from "@nivo/tree";
 import { aggregate } from "../aggregate";
 
@@ -18,15 +19,6 @@ import { aggregate } from "../aggregate";
  */
 
 // Depth color ramps (root → leaf), matching the repo's color-scheme vocabulary.
-const RAMP = {
-  blues:        ["#084594", "#2171b5", "#4292c6", "#6baed6", "#9ecae1"],
-  greens:       ["#005a32", "#238b45", "#41ab5d", "#74c476", "#a1d99b"],
-  reds:         ["#99000d", "#cb181d", "#ef3b2c", "#fb6a4a", "#fc9272"],
-  oranges:      ["#8c2d04", "#d94801", "#f16913", "#fd8d3c", "#fdae6b"],
-  purples:      ["#4a1486", "#6a51a3", "#807dba", "#9e9ac8", "#bcbddc"],
-  blue_green:   ["#0868ac", "#2b8cbe", "#4eb3d3", "#7bccc4", "#a8ddb5"],
-  yellow_green: ["#005a32", "#238443", "#41ab5d", "#78c679", "#addd8e"],
-};
 
 export default function Tree({ config, sigmaData, setLoading, onSelect, theme }) {
   const treeData = useMemo(() => {
@@ -77,7 +69,7 @@ export default function Tree({ config, sigmaData, setLoading, onSelect, theme })
     );
   }
 
-  const ramp = RAMP[config.colorScheme] || RAMP.blues;
+  const ramp = rampColors(config);
 
   return (
     <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column" }}>

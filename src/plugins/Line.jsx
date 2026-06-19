@@ -1,4 +1,5 @@
 import { useMemo, useEffect } from "react";
+import { catColors } from "../palette";
 import { ResponsiveLine } from "@nivo/line";
 import { aggregate } from "../aggregate";
 
@@ -67,11 +68,6 @@ export default function Line({ config, sigmaData, setLoading, onSelect, theme })
       </div>
     );
   }
-
-  const schemeMap = {
-    blues: "blues", greens: "greens", reds: "reds", oranges: "oranges",
-    purples: "purples", blue_green: "blue_green", yellow_green: "yellow_green",
-  };
   const xCount = data[0]?.data.length ?? 0;
 
   return (
@@ -92,7 +88,7 @@ export default function Line({ config, sigmaData, setLoading, onSelect, theme })
           xScale={{ type: "point" }}
           yScale={{ type: "linear", min: "auto", max: "auto", stacked: false }}
           curve="monotoneX"
-          colors={{ scheme: schemeMap[config.colorScheme] || "blues" }}
+          colors={catColors(config)}
           lineWidth={2.5}
           enablePoints={xCount <= 24}
           pointSize={6}

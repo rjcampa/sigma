@@ -1,4 +1,5 @@
 import { useMemo, useEffect } from "react";
+import { catColors } from "../palette";
 import { ResponsiveRadialBar } from "@nivo/radial-bar";
 import { aggregate } from "../aggregate";
 
@@ -64,11 +65,6 @@ export default function RadialBar({ config, sigmaData, setLoading, onSelect, the
     );
   }
 
-  const schemeMap = {
-    blues: "blues", greens: "greens", reds: "reds", oranges: "oranges",
-    purples: "purples", blue_green: "blue_green", yellow_green: "yellow_green",
-  };
-
   return (
     <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column" }}>
       {config.title && (
@@ -87,7 +83,7 @@ export default function RadialBar({ config, sigmaData, setLoading, onSelect, the
           margin={{ top: 40, right: 120, bottom: 40, left: 40 }}
           padding={0.4}
           cornerRadius={2}
-          colors={{ scheme: schemeMap[config.colorScheme] || "blues" }}
+          colors={catColors(config)}
           borderWidth={1}
           borderColor={{ from: "color", modifiers: [["darker", 0.5]] }}
           enableTracks={true}

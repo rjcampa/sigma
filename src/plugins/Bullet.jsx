@@ -1,4 +1,5 @@
 import { useMemo, useEffect } from "react";
+import { rampColors } from "../palette";
 import { ResponsiveBullet } from "@nivo/bullet";
 import { aggregate } from "../aggregate";
 
@@ -56,17 +57,7 @@ export default function Bullet({ config, sigmaData, setLoading, onSelect, theme 
       </div>
     );
   }
-
-  const schemeMap = {
-    blues: ["#c6dbef", "#6baed6", "#2171b5", "#084594"],
-    greens: ["#c7e9c0", "#74c476", "#238b45", "#005a32"],
-    reds: ["#fcbba1", "#fb6a4a", "#cb181d", "#67000d"],
-    oranges: ["#fdd0a2", "#fd8d3c", "#d94801", "#7f2704"],
-    purples: ["#dadaeb", "#9e9ac8", "#6a51a3", "#3f007d"],
-    blue_green: ["#ccece6", "#66c2a4", "#238b45", "#00441b"],
-    yellow_green: ["#d9f0a3", "#addd8e", "#41ab5d", "#005a32"],
-  };
-  const rangeColors = schemeMap[config.colorScheme] || schemeMap.blues;
+  const rangeColors = rampColors(config);
 
   return (
     <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column" }}>

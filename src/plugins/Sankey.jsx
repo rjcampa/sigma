@@ -1,4 +1,5 @@
 import { useMemo, useEffect } from "react";
+import { catColors } from "../palette";
 import { ResponsiveSankey } from "@nivo/sankey";
 import { aggregate } from "../aggregate";
 
@@ -63,11 +64,6 @@ export default function Sankey({ config, sigmaData, setLoading, onSelect, theme 
     );
   }
 
-  const schemeMap = {
-    blues: "blues", greens: "greens", reds: "reds", oranges: "oranges",
-    purples: "purples", blue_green: "blue_green", yellow_green: "yellow_green",
-  };
-
   return (
     <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column" }}>
       {config.title && (
@@ -84,7 +80,7 @@ export default function Sankey({ config, sigmaData, setLoading, onSelect, theme 
           theme={theme?.nivo}
           margin={{ top: 40, right: 160, bottom: 40, left: 50 }}
           align="justify"
-          colors={{ scheme: schemeMap[config.colorScheme] || "blues" }}
+          colors={catColors(config)}
           nodeOpacity={1}
           nodeHoverOthersOpacity={0.35}
           nodeThickness={18}

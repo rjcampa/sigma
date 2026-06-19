@@ -1,4 +1,5 @@
 import { useMemo, useEffect } from "react";
+import { catColors } from "../palette";
 import { ResponsiveScatterPlot } from "@nivo/scatterplot";
 
 /**
@@ -52,11 +53,6 @@ export default function Scatter({ config, sigmaData, columns, setLoading, onSele
       </div>
     );
   }
-
-  const schemeMap = {
-    blues: "blues", greens: "greens", reds: "reds", oranges: "oranges",
-    purples: "purples", blue_green: "blue_green", yellow_green: "yellow_green",
-  };
   const xName = columns?.[config.measure]?.name || "Value X";
   const yName = columns?.[config.measure2]?.name || "Value Y";
   const hasGroups = !!config.dimension1;
@@ -78,7 +74,7 @@ export default function Scatter({ config, sigmaData, columns, setLoading, onSele
           margin={{ top: 24, right: hasGroups ? 120 : 24, bottom: 56, left: 64 }}
           xScale={{ type: "linear", min: "auto", max: "auto" }}
           yScale={{ type: "linear", min: "auto", max: "auto" }}
-          colors={{ scheme: schemeMap[config.colorScheme] || "blues" }}
+          colors={catColors(config)}
           nodeSize={8}
           blendMode={theme?.isDark ? "lighten" : "multiply"}
           useMesh={true}

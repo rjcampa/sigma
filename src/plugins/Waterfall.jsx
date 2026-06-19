@@ -1,4 +1,5 @@
 import { useMemo, useEffect } from "react";
+import { solidColor } from "../palette";
 import { aggregate } from "../aggregate";
 import { formatNum } from "../format";
 import { useContainerSize } from "./useContainerSize";
@@ -13,11 +14,6 @@ import { useContainerSize } from "./useContainerSize";
  *   - dimension1: step / category (ordered, first-seen)
  *   - measure: the change for each step (may be +/-), aggregated per step
  */
-
-const ACCENT = {
-  blues: "#2171b5", greens: "#238b45", reds: "#cb181d", oranges: "#d94801",
-  purples: "#6a51a3", blue_green: "#2b8cbe", yellow_green: "#41ab5d",
-};
 
 export default function Waterfall({ config, sigmaData, setLoading, theme }) {
   const steps = useMemo(() => {
@@ -42,7 +38,7 @@ export default function Waterfall({ config, sigmaData, setLoading, theme }) {
   }, [steps, setLoading]);
 
   const [ref, { width, height }] = useContainerSize();
-  const accent = config.accentColor || ACCENT[config.colorScheme] || ACCENT.blues;
+  const accent = config.accentColor || solidColor(config);
 
   if (!steps.length) {
     return (

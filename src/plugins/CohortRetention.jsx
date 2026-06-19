@@ -1,4 +1,5 @@
 import { useMemo, useEffect } from "react";
+import { seqColors } from "../palette";
 import { ResponsiveHeatMap } from "@nivo/heatmap";
 import { aggregate } from "../aggregate";
 
@@ -67,11 +68,6 @@ export default function CohortRetention({ config, sigmaData, setLoading, theme }
       </div>
     );
   }
-
-  const schemeMap = {
-    blues: "blues", greens: "greens", reds: "reds", oranges: "oranges",
-    purples: "purples", blue_green: "blue_green", yellow_green: "yellow_green",
-  };
   const ink = theme?.text ?? "#333";
   const maxRowLabel = Math.max(...data.map((d) => d.id.length));
   const leftMargin = Math.min(Math.max(maxRowLabel * 7, 70), 200);
@@ -91,7 +87,7 @@ export default function CohortRetention({ config, sigmaData, setLoading, theme }
           valueFormat={(v) => (v == null ? "" : `${Math.round(v)}%`)}
           axisTop={{ tickSize: 5, tickPadding: 5, tickRotation: 0 }}
           axisLeft={{ tickSize: 5, tickPadding: 5 }}
-          colors={{ type: "sequential", scheme: schemeMap[config.colorScheme] || "blues", minValue: 0, maxValue: 100 }}
+          colors={{ ...seqColors(config), minValue: 0, maxValue: 100 }}
           emptyColor={theme?.isDark ? "#23283a" : "#f3f4f6"}
           borderColor={theme?.isDark ? "#23283a" : "#ffffff"}
           borderWidth={2}

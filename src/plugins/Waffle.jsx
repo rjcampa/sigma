@@ -1,4 +1,5 @@
 import { useMemo, useEffect } from "react";
+import { catColors } from "../palette";
 import { ResponsiveWaffle } from "@nivo/waffle";
 import { aggregate } from "../aggregate";
 
@@ -46,11 +47,6 @@ export default function Waffle({ config, sigmaData, setLoading, onSelect, theme 
 
   const total = waffleData.reduce((s, d) => s + d.value, 0);
 
-  const schemeMap = {
-    blues: "blues", greens: "greens", reds: "reds", oranges: "oranges",
-    purples: "purples", blue_green: "blue_green", yellow_green: "yellow_green",
-  };
-
   return (
     <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column" }}>
       {config.title && (
@@ -70,7 +66,7 @@ export default function Waffle({ config, sigmaData, setLoading, onSelect, theme 
           columns={14}
           padding={1}
           margin={{ top: 10, right: 10, bottom: 10, left: 120 }}
-          colors={{ scheme: schemeMap[config.colorScheme] || "blues" }}
+          colors={catColors(config)}
           borderRadius={3}
           borderColor={{ from: "color", modifiers: [["darker", 0.3]] }}
           animate={true}

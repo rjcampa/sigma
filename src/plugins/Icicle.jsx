@@ -1,4 +1,5 @@
 import { useMemo, useEffect } from "react";
+import { catColors } from "../palette";
 import { ResponsiveIcicle } from "@nivo/icicle";
 import { aggregate } from "../aggregate";
 
@@ -65,11 +66,6 @@ export default function Icicle({ config, sigmaData, setLoading, onSelect, theme 
     );
   }
 
-  const schemeMap = {
-    blues: "blues", greens: "greens", reds: "reds", oranges: "oranges",
-    purples: "purples", blue_green: "blue_green", yellow_green: "yellow_green",
-  };
-
   return (
     <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column" }}>
       {config.title && (
@@ -94,7 +90,7 @@ export default function Icicle({ config, sigmaData, setLoading, onSelect, theme 
           borderRadius={2}
           borderWidth={1}
           borderColor={{ from: "color", modifiers: [["darker", 0.4]] }}
-          colors={{ scheme: schemeMap[config.colorScheme] || "blues" }}
+          colors={catColors(config)}
           inheritColorFromParent={true}
           childColor={{ from: "color", modifiers: [["brighter", 0.3]] }}
           enableLabels={config.showLabels ?? true}

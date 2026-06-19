@@ -1,4 +1,5 @@
 import { useMemo, useEffect } from "react";
+import { solidColor } from "../palette";
 import { ResponsiveVoronoi } from "@nivo/voronoi";
 
 /**
@@ -14,11 +15,6 @@ import { ResponsiveVoronoi } from "@nivo/voronoi";
  *   - measure:    Value X (numeric)
  *   - measure2:   Value Y (numeric)   ← unique to this chart
  */
-
-const DOT_COLOR = {
-  blues: "#2171b5", greens: "#238b45", reds: "#cb181d", oranges: "#d94801",
-  purples: "#6a51a3", blue_green: "#2b8cbe", yellow_green: "#41ab5d",
-};
 
 function pad(min, max) {
   if (min === max) return [min - 1, max + 1];
@@ -67,7 +63,7 @@ export default function Voronoi({ config, sigmaData, setLoading, theme }) {
     );
   }
 
-  const dot = DOT_COLOR[config.colorScheme] || DOT_COLOR.blues;
+  const dot = solidColor(config);
 
   return (
     <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column" }}>

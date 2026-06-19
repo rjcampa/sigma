@@ -1,4 +1,5 @@
 import { useMemo, useEffect } from "react";
+import { catColors } from "../palette";
 import { ResponsiveParallelCoordinates } from "@nivo/parallel-coordinates";
 import { aggregate } from "../aggregate";
 
@@ -74,11 +75,6 @@ export default function ParallelCoordinates({ config, sigmaData, setLoading, the
     );
   }
 
-  const schemeMap = {
-    blues: "blues", greens: "greens", reds: "reds", oranges: "oranges",
-    purples: "purples", blue_green: "blue_green", yellow_green: "yellow_green",
-  };
-
   return (
     <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column" }}>
       {config.title && (
@@ -97,7 +93,7 @@ export default function ParallelCoordinates({ config, sigmaData, setLoading, the
           margin={{ top: 50, right: 60, bottom: 50, left: 60 }}
           layout="horizontal"
           curve="monotoneX"
-          colors={{ scheme: schemeMap[config.colorScheme] || "blues" }}
+          colors={catColors(config)}
           lineWidth={2}
           lineOpacity={0.55}
           strokeWidth={2}

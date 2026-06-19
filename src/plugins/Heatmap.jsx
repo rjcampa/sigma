@@ -1,4 +1,5 @@
 import { useMemo, useEffect } from "react";
+import { seqColors } from "../palette";
 import { ResponsiveHeatMap } from "@nivo/heatmap";
 import { aggregate } from "../aggregate";
 
@@ -88,10 +89,7 @@ export default function Heatmap({ config, sigmaData, setLoading, onSelect, theme
             tickSize: 5,
             tickPadding: 5,
           }}
-          colors={{
-            type: "sequential",
-            scheme: config.colorScheme || "blues",
-          }}
+          colors={seqColors(config)}
           emptyColor="#f5f5f5"
           borderColor={{ from: "color", modifiers: [["darker", 0.3]] }}
           borderWidth={1}

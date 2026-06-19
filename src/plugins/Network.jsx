@@ -1,4 +1,5 @@
 import { useMemo, useEffect } from "react";
+import { roleColors } from "../palette";
 import { ResponsiveNetwork } from "@nivo/network";
 import { aggregate } from "../aggregate";
 
@@ -18,15 +19,6 @@ import { aggregate } from "../aggregate";
  */
 
 // [source-only, target-only, both] role colors per scheme.
-const ROLE_COLORS = {
-  blues:        ["#2171b5", "#6baed6", "#084594"],
-  greens:       ["#238b45", "#74c476", "#005a32"],
-  reds:         ["#cb181d", "#fb6a4a", "#99000d"],
-  oranges:      ["#d94801", "#fd8d3c", "#8c2d04"],
-  purples:      ["#6a51a3", "#9e9ac8", "#4a1486"],
-  blue_green:   ["#2b8cbe", "#7bccc4", "#0868ac"],
-  yellow_green: ["#41ab5d", "#addd8e", "#238443"],
-};
 
 export default function Network({ config, sigmaData, setLoading, onSelect, theme }) {
   const graph = useMemo(() => {
@@ -66,7 +58,7 @@ export default function Network({ config, sigmaData, setLoading, onSelect, theme
       maxWeight = Math.max(maxWeight, l.value);
     }
 
-    const [cSrc, cTgt, cBoth] = ROLE_COLORS[config.colorScheme] || ROLE_COLORS.blues;
+    const [cSrc, cTgt, cBoth] = roleColors(config);
     const degreeTotals = {};
     for (const id of ids) degreeTotals[id] = degree[id] ? aggregate(degree[id], method) : 0;
     const maxDeg = Math.max(1, ...Object.values(degreeTotals));

@@ -1,4 +1,5 @@
 import { useMemo, useEffect } from "react";
+import { catColors } from "../palette";
 import { ResponsiveCirclePacking } from "@nivo/circle-packing";
 import { aggregate } from "../aggregate";
 
@@ -81,11 +82,6 @@ export default function CirclePacking({ config, sigmaData, setLoading, onSelect,
     );
   }
 
-  const schemeMap = {
-    blues: "blues", greens: "greens", reds: "reds", oranges: "oranges",
-    purples: "purples", blue_green: "blue_green", yellow_green: "yellow_green",
-  };
-
   return (
     <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column" }}>
       {config.title && (
@@ -104,7 +100,7 @@ export default function CirclePacking({ config, sigmaData, setLoading, onSelect,
           value="value"
           valueFormat=">,.0f"
           margin={{ top: 20, right: 20, bottom: 20, left: 20 }}
-          colors={{ scheme: schemeMap[config.colorScheme] || "blues" }}
+          colors={catColors(config)}
           childColor={{ from: "color", modifiers: [["brighter", 0.4]] }}
           padding={4}
           label={(node) => node.data?.name ?? node.id}

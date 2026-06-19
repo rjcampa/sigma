@@ -1,4 +1,5 @@
 import { useMemo, useEffect, useRef, useState, useCallback } from "react";
+import { roleColors } from "../palette";
 import ForceGraph2D from "react-force-graph-2d";
 import { aggregate } from "../aggregate";
 
@@ -14,16 +15,6 @@ import { aggregate } from "../aggregate";
  *   - dimension2: target node
  *   - measure: relationship weight (link strength / particle density)
  */
-
-const ROLE_COLORS = {
-  blues:        ["#2171b5", "#6baed6", "#084594"],
-  greens:       ["#238b45", "#74c476", "#005a32"],
-  reds:         ["#cb181d", "#fb6a4a", "#99000d"],
-  oranges:      ["#d94801", "#fd8d3c", "#8c2d04"],
-  purples:      ["#6a51a3", "#9e9ac8", "#4a1486"],
-  blue_green:   ["#2b8cbe", "#7bccc4", "#0868ac"],
-  yellow_green: ["#41ab5d", "#addd8e", "#238443"],
-};
 
 export default function ForceGraph({ config, sigmaData, setLoading, onSelect, theme }) {
   const graph = useMemo(() => {
@@ -56,7 +47,7 @@ export default function ForceGraph({ config, sigmaData, setLoading, onSelect, th
 
     const method = config.aggregation || "Sum";
 
-    const [cSrc, cTgt, cBoth] = ROLE_COLORS[config.colorScheme] || ROLE_COLORS.blues;
+    const [cSrc, cTgt, cBoth] = roleColors(config);
     const degreeAgg = {};
     for (const id of ids) degreeAgg[id] = degree[id] ? aggregate(degree[id], method) : 0;
     const maxDeg = Math.max(1, ...Object.values(degreeAgg));

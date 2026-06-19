@@ -11,6 +11,7 @@ import {
 } from "@sigmacomputing/plugin";
 import { buildTheme, FONT_OPTIONS, SIZE_OPTIONS } from "./theme";
 import { AGG_METHODS } from "./aggregate";
+import { PALETTE_OPTIONS } from "./palette";
 import { CHART_TYPES, CHART_COMPONENTS } from "./charts";
 
 // Dynamic sidebar labels per chart type
@@ -138,9 +139,20 @@ export default function App() {
 
     // Display options
     { type: "text", name: "title", label: "Title", defaultValue: "" },
-    { type: "dropdown", name: "colorScheme", label: "Color Scheme",
-      values: ["blues", "greens", "reds", "oranges", "purples", "blue_green", "yellow_green"],
-      defaultValue: "blues" },
+    { type: "dropdown", name: "colorScheme", label: "Palette",
+      values: [...PALETTE_OPTIONS, "Custom"], defaultValue: "Sigma" },
+    { type: "toggle", name: "reverseColors", label: "Reverse Colors", defaultValue: false },
+    // Custom palette swatches — shown only when Palette = Custom
+    ...(config.colorScheme === "Custom"
+      ? [
+          { type: "color", name: "color1", label: "Color 1" },
+          { type: "color", name: "color2", label: "Color 2" },
+          { type: "color", name: "color3", label: "Color 3" },
+          { type: "color", name: "color4", label: "Color 4" },
+          { type: "color", name: "color5", label: "Color 5" },
+          { type: "color", name: "color6", label: "Color 6" },
+        ]
+      : []),
     { type: "toggle", name: "showLabels", label: "Show Labels", defaultValue: true },
 
     // Appearance — Auto follows the workbook theme (via usePluginStyle)

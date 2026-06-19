@@ -1,4 +1,5 @@
 import { useMemo, useEffect } from "react";
+import { solidColor } from "../palette";
 import { aggregate } from "../aggregate";
 import { formatNum } from "../format";
 import { useContainerSize } from "./useContainerSize";
@@ -13,11 +14,6 @@ import { useContainerSize } from "./useContainerSize";
  *   - measure: the metric (aggregated per the Aggregation control)
  *   - dimension1: optional ordered period → drives the sparkline + Δ vs prev
  */
-
-const ACCENT = {
-  blues: "#2171b5", greens: "#238b45", reds: "#cb181d", oranges: "#d94801",
-  purples: "#6a51a3", blue_green: "#2b8cbe", yellow_green: "#41ab5d",
-};
 
 export default function KPI({ config, sigmaData, columns, setLoading, theme }) {
   const { value, delta, spark } = useMemo(() => {
@@ -57,7 +53,7 @@ export default function KPI({ config, sigmaData, columns, setLoading, theme }) {
   }, [value, setLoading]);
 
   const [ref, size] = useContainerSize();
-  const accent = config.accentColor || ACCENT[config.colorScheme] || ACCENT.blues;
+  const accent = config.accentColor || solidColor(config);
   const label = config.title || columns?.[config.measure]?.name || "Metric";
 
   if (value == null) {
