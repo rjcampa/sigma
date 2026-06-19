@@ -79,8 +79,16 @@ The panel is rebuilt every render from `config.chartType`. **Config keys** (=
 panel control names): `chartType, source, dimension1, dimension2, measure,
 measure2, title, colorScheme` (holds the **palette name**), `reverseColors,
 color1..color6` (Custom swatches), `showLabels, appearance, accentColor, font,
-textSize, background, numberFormat, aggregation, cumulative`, plus `onSelect`
-(action-trigger) and `selectedValue` (variable).
+textSize, padding, border, background, numberFormat, aggregation, cumulative`,
+plus `onSelect` (action-trigger) and `selectedValue` (variable).
+
+**Chart Type dropdown carries an emoji glyph** (Sigma panel dropdowns are plain
+`string[]` — no SVG icons possible). `charts.js` exports `CHART_ICONS`,
+`CHART_TYPE_LABELS` (iconed, used as the dropdown `values`), and `cleanChartType()`
+which strips the glyph back to the clean name for routing. `App.jsx` does
+`const chartType = cleanChartType(config.chartType)` — always route on the clean
+name. Padding/Border apply via `frameStyle(config, theme)` on the chart wrapper
+(in both App.jsx and DevPreview).
 
 Per-chart behavior is driven by **Sets in App.jsx** — add a new chart's name here:
 - `DIM1_LABELS / DIM2_LABELS / MEASURE_LABELS` — panel field labels per chart
@@ -192,6 +200,8 @@ hung/failed deploy does NOT affect the live site (previous deploy persists).
 - **Number Format** (Auto/Full/Currency/Percent) on value labels + tooltips.
 - **Typography**: Font (Inter/System/Serif/Mono), Text Size (S/M/L).
 - **Background** override (drives light/dark text contrast).
+- **Padding** (None/Small/Medium/Large) + **Border** (None/Subtle/Bold) on the chart frame.
+- **Chart Type dropdown** shows an emoji glyph per chart; ordered by type.
 - **Accent/brand color** (business charts + selection chip).
 - **Appearance** Auto/Light/Dark (Auto follows the workbook via `usePluginStyle`).
 - **Selection**: click → sets the `selectedValue` variable + fires the `onSelect` action;
