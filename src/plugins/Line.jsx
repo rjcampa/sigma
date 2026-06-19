@@ -2,6 +2,7 @@ import { useMemo, useEffect } from "react";
 import { catColors } from "../palette";
 import { ResponsiveLine } from "@nivo/line";
 import { aggregate } from "../aggregate";
+import { makeFormatter } from "../format";
 
 /**
  * Line / Curve chart (multi-series)
@@ -69,6 +70,7 @@ export default function Line({ config, sigmaData, setLoading, onSelect, theme })
     );
   }
   const xCount = data[0]?.data.length ?? 0;
+  const fmtVal = makeFormatter(config);
 
   return (
     <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column" }}>
@@ -85,6 +87,7 @@ export default function Line({ config, sigmaData, setLoading, onSelect, theme })
           data={data}
           theme={theme?.nivo}
           margin={{ top: 24, right: 122, bottom: 56, left: 64 }}
+          yFormat={fmtVal}
           xScale={{ type: "point" }}
           yScale={{ type: "linear", min: "auto", max: "auto", stacked: false }}
           curve="monotoneX"

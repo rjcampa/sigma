@@ -78,8 +78,6 @@ const HIDE_AGG = new Set([
 // Charts that expose a "Cumulative" toggle (running-sum the series).
 const CUMULATIVE_CHARTS = new Set(["Line"]);
 
-// Charts whose value labels respect the "Number Format" control.
-const NUMBER_FORMAT_CHARTS = new Set(["KPI", "Gauge", "Waterfall", "CohortPnL"]);
 
 export default function App() {
   const [loading, setLoading] = useLoadingState(true);
@@ -166,11 +164,9 @@ export default function App() {
     { type: "dropdown", name: "textSize", label: "Text Size",
       values: SIZE_OPTIONS, defaultValue: "Medium" },
     { type: "color", name: "background", label: "Background" },
-    // Number format (value-label charts only)
-    ...(NUMBER_FORMAT_CHARTS.has(chartType)
-      ? [{ type: "dropdown", name: "numberFormat", label: "Number Format",
-           values: ["Auto", "Full", "Currency", "Percent"], defaultValue: "Auto" }]
-      : []),
+    // Number format — applies to value labels & tooltips across the charts
+    { type: "dropdown", name: "numberFormat", label: "Number Format",
+      values: ["Auto", "Full", "Currency", "Percent"], defaultValue: "Auto" },
 
     // Actions — fire when a user clicks a chart element
     { type: "action-trigger", name: "onSelect", label: "On Element Click" },

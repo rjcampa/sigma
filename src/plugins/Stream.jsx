@@ -2,6 +2,7 @@ import { useMemo, useEffect } from "react";
 import { catColors } from "../palette";
 import { ResponsiveStream } from "@nivo/stream";
 import { aggregate } from "../aggregate";
+import { makeFormatter } from "../format";
 
 /**
  * Stream / Stacked Area Plugin
@@ -65,6 +66,8 @@ export default function Stream({ config, sigmaData, setLoading, onSelect, theme 
     );
   }
 
+  const fmtVal = makeFormatter(config);
+
   return (
     <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column" }}>
       {config.title && (
@@ -81,6 +84,7 @@ export default function Stream({ config, sigmaData, setLoading, onSelect, theme 
           keys={streamKeys}
           theme={theme?.nivo}
           margin={{ top: 50, right: 110, bottom: 50, left: 60 }}
+          valueFormat={fmtVal}
           axisBottom={{
             orient: "bottom",
             tickSize: 5,

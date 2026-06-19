@@ -9,6 +9,9 @@ function compact(n) {
   return Number.isInteger(n) ? n.toLocaleString() : (Math.round(n * 100) / 100).toLocaleString();
 }
 
+/** A value formatter bound to a chart's config — pass to Nivo `valueFormat`. */
+export const makeFormatter = (config) => (v) => formatNum(v, config?.numberFormat);
+
 /**
  * @param {number} n
  * @param {"Auto"|"Full"|"Currency"|"Percent"} [mode]

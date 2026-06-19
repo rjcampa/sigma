@@ -2,6 +2,7 @@ import { useMemo, useEffect } from "react";
 import { catColors } from "../palette";
 import { ResponsiveIcicle } from "@nivo/icicle";
 import { aggregate } from "../aggregate";
+import { makeFormatter } from "../format";
 
 /**
  * Icicle Plugin
@@ -66,6 +67,8 @@ export default function Icicle({ config, sigmaData, setLoading, onSelect, theme 
     );
   }
 
+  const fmtVal = makeFormatter(config);
+
   return (
     <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column" }}>
       {config.title && (
@@ -82,7 +85,7 @@ export default function Icicle({ config, sigmaData, setLoading, onSelect, theme 
           theme={theme?.nivo}
           identity="id"
           value="value"
-          valueFormat=">,.0f"
+          valueFormat={fmtVal}
           orientation="top"
           margin={{ top: 10, right: 10, bottom: 10, left: 10 }}
           gapX={2}
@@ -112,7 +115,7 @@ export default function Icicle({ config, sigmaData, setLoading, onSelect, theme 
                 backgroundColor: node.color, borderRadius: 2,
               }} />
               <span>
-                <strong>{node.id}</strong>: {node.formattedValue ?? node.value}
+                <strong>{node.id}</strong>: {node.formattedValue ?? fmtVal(node.value)}
               </span>
             </div>
           )}

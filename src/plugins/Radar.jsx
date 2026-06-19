@@ -2,6 +2,7 @@ import { useMemo, useEffect } from "react";
 import { catColors } from "../palette";
 import { ResponsiveRadar } from "@nivo/radar";
 import { aggregate } from "../aggregate";
+import { makeFormatter } from "../format";
 
 /**
  * Radar / Spider Chart Plugin
@@ -60,6 +61,8 @@ export default function Radar({ config, sigmaData, setLoading, onSelect, theme }
     );
   }
 
+  const fmtVal = makeFormatter(config);
+
   return (
     <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column" }}>
       {config.title && (
@@ -78,6 +81,7 @@ export default function Radar({ config, sigmaData, setLoading, onSelect, theme }
           indexBy="metric"
           maxValue="auto"
           margin={{ top: 70, right: 80, bottom: 40, left: 80 }}
+          valueFormat={fmtVal}
           curve="linearClosed"
           borderWidth={2}
           borderColor={{ from: "color" }}

@@ -2,6 +2,7 @@ import { useMemo, useEffect } from "react";
 import { seqColors } from "../palette";
 import { ResponsiveHeatMap } from "@nivo/heatmap";
 import { aggregate } from "../aggregate";
+import { makeFormatter } from "../format";
 
 /**
  * Heatmap Plugin
@@ -64,6 +65,8 @@ export default function Heatmap({ config, sigmaData, setLoading, onSelect, theme
   const maxRowLabel = Math.max(...chartData.map((d) => d.id.length));
   const leftMargin = Math.min(Math.max(maxRowLabel * 7, 60), 200);
 
+  const fmtVal = makeFormatter(config);
+
   return (
     <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column" }}>
       {config.title && (
@@ -80,6 +83,7 @@ export default function Heatmap({ config, sigmaData, setLoading, onSelect, theme
           data={chartData}
           theme={theme?.nivo}
           margin={{ top: 60, right: 90, bottom: 30, left: leftMargin }}
+          valueFormat={fmtVal}
           axisTop={{
             tickSize: 5,
             tickPadding: 5,

@@ -1,5 +1,6 @@
 import { useMemo, useEffect } from "react";
 import { catColors } from "../palette";
+import { makeFormatter } from "../format";
 import { ResponsiveSwarmPlot } from "@nivo/swarmplot";
 
 /**
@@ -46,6 +47,8 @@ export default function SwarmPlot({ config, sigmaData, setLoading, onSelect, the
     );
   }
 
+  const fmtVal = makeFormatter(config);
+
   return (
     <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column" }}>
       {config.title && (
@@ -62,6 +65,7 @@ export default function SwarmPlot({ config, sigmaData, setLoading, onSelect, the
           theme={theme?.nivo}
           groups={groups}
           value="value"
+          valueFormat={fmtVal}
           valueScale={{ type: "linear", min: "auto", max: "auto" }}
           size={6}
           forceStrength={4}
@@ -98,7 +102,7 @@ export default function SwarmPlot({ config, sigmaData, setLoading, onSelect, the
                 backgroundColor: node.color, borderRadius: "50%",
               }} />
               <span>
-                <strong>{node.group}</strong>: {node.value.toLocaleString()}
+                <strong>{node.group}</strong>: {fmtVal(node.value)}
               </span>
             </div>
           )}

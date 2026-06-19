@@ -2,6 +2,7 @@ import { useMemo, useEffect } from "react";
 import { catColors } from "../palette";
 import { ResponsiveCirclePacking } from "@nivo/circle-packing";
 import { aggregate } from "../aggregate";
+import { makeFormatter } from "../format";
 
 /**
  * Circle Packing Plugin
@@ -82,6 +83,8 @@ export default function CirclePacking({ config, sigmaData, setLoading, onSelect,
     );
   }
 
+  const fmtVal = makeFormatter(config);
+
   return (
     <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column" }}>
       {config.title && (
@@ -98,7 +101,7 @@ export default function CirclePacking({ config, sigmaData, setLoading, onSelect,
           theme={theme?.nivo}
           id="id"
           value="value"
-          valueFormat=">,.0f"
+          valueFormat={fmtVal}
           margin={{ top: 20, right: 20, bottom: 20, left: 20 }}
           colors={catColors(config)}
           childColor={{ from: "color", modifiers: [["brighter", 0.4]] }}
@@ -123,7 +126,7 @@ export default function CirclePacking({ config, sigmaData, setLoading, onSelect,
                 backgroundColor: color, borderRadius: "50%",
               }} />
               <span>
-                <strong>{data?.name ?? id}</strong>: {value.toLocaleString()}
+                <strong>{data?.name ?? id}</strong>: {fmtVal(value)}
               </span>
             </div>
           )}

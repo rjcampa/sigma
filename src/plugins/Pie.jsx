@@ -2,6 +2,7 @@ import { useMemo, useEffect } from "react";
 import { catColors } from "../palette";
 import { ResponsivePie } from "@nivo/pie";
 import { aggregate } from "../aggregate";
+import { makeFormatter } from "../format";
 
 /**
  * Pie / Donut Plugin
@@ -45,6 +46,8 @@ export default function Pie({ config, sigmaData, setLoading, onSelect, theme }) 
     );
   }
 
+  const fmtVal = makeFormatter(config);
+
   return (
     <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column" }}>
       {config.title && (
@@ -60,6 +63,7 @@ export default function Pie({ config, sigmaData, setLoading, onSelect, theme }) 
           data={pieData}
           theme={theme?.nivo}
           margin={{ top: 40, right: 80, bottom: 80, left: 80 }}
+          valueFormat={fmtVal}
           innerRadius={0.5}
           padAngle={0.7}
           cornerRadius={3}

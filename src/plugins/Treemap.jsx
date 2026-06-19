@@ -2,6 +2,7 @@ import { useMemo, useEffect } from "react";
 import { catColors } from "../palette";
 import { ResponsiveTreeMap } from "@nivo/treemap";
 import { aggregate } from "../aggregate";
+import { makeFormatter } from "../format";
 
 /**
  * Treemap Plugin
@@ -80,6 +81,8 @@ export default function Treemap({ config, sigmaData, setLoading, onSelect, theme
 
   // Map color scheme names to Nivo treemap-compatible schemes
 
+  const fmtVal = makeFormatter(config);
+
   return (
     <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column" }}>
       {config.title && (
@@ -97,7 +100,7 @@ export default function Treemap({ config, sigmaData, setLoading, onSelect, theme
           theme={theme?.nivo}
           identity="name"
           value="value"
-          valueFormat=">,.0f"
+          valueFormat={fmtVal}
           margin={{ top: 10, right: 10, bottom: 10, left: 10 }}
           tile="squarify"
           leavesOnly={false}
@@ -111,7 +114,7 @@ export default function Treemap({ config, sigmaData, setLoading, onSelect, theme
           label={(node) => {
             // Only show label if the node is big enough
             if (node.width < 40 || node.height < 25) return "";
-            const val = node.value.toLocaleString();
+            const val = fmtVal(node.value);
             return node.width > 80 ? `${node.id}\n${val}` : node.id;
           }}
           labelSkipSize={24}

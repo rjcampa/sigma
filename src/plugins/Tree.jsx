@@ -2,6 +2,7 @@ import { useMemo, useEffect } from "react";
 import { rampColors } from "../palette";
 import { ResponsiveTree } from "@nivo/tree";
 import { aggregate } from "../aggregate";
+import { makeFormatter } from "../format";
 
 /**
  * Tree / Dendrogram Plugin
@@ -70,6 +71,7 @@ export default function Tree({ config, sigmaData, setLoading, onSelect, theme })
   }
 
   const ramp = rampColors(config);
+  const fmtVal = makeFormatter(config);
 
   return (
     <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column" }}>
@@ -119,7 +121,7 @@ export default function Tree({ config, sigmaData, setLoading, onSelect, theme })
               }} />
               <span>
                 <strong>{node.id}</strong>
-                {node.data?.value != null && `: ${Number(node.data.value).toLocaleString()}`}
+                {node.data?.value != null && `: ${fmtVal(Number(node.data.value))}`}
               </span>
             </div>
           )}

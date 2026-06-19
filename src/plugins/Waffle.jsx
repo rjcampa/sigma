@@ -2,6 +2,7 @@ import { useMemo, useEffect } from "react";
 import { catColors } from "../palette";
 import { ResponsiveWaffle } from "@nivo/waffle";
 import { aggregate } from "../aggregate";
+import { makeFormatter } from "../format";
 
 /**
  * Waffle Chart Plugin
@@ -46,6 +47,7 @@ export default function Waffle({ config, sigmaData, setLoading, onSelect, theme 
   }
 
   const total = waffleData.reduce((s, d) => s + d.value, 0);
+  const fmtVal = makeFormatter(config);
 
   return (
     <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column" }}>
@@ -62,6 +64,7 @@ export default function Waffle({ config, sigmaData, setLoading, onSelect, theme 
           data={waffleData}
           theme={theme?.nivo}
           total={total}
+          valueFormat={fmtVal}
           rows={18}
           columns={14}
           padding={1}

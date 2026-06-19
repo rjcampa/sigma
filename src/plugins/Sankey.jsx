@@ -2,6 +2,7 @@ import { useMemo, useEffect } from "react";
 import { catColors } from "../palette";
 import { ResponsiveSankey } from "@nivo/sankey";
 import { aggregate } from "../aggregate";
+import { makeFormatter } from "../format";
 
 /**
  * Sankey Plugin
@@ -64,6 +65,8 @@ export default function Sankey({ config, sigmaData, setLoading, onSelect, theme 
     );
   }
 
+  const fmtVal = makeFormatter(config);
+
   return (
     <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column" }}>
       {config.title && (
@@ -79,6 +82,7 @@ export default function Sankey({ config, sigmaData, setLoading, onSelect, theme 
           data={sankeyData}
           theme={theme?.nivo}
           margin={{ top: 40, right: 160, bottom: 40, left: 50 }}
+          valueFormat={fmtVal}
           align="justify"
           colors={catColors(config)}
           nodeOpacity={1}
@@ -107,7 +111,7 @@ export default function Sankey({ config, sigmaData, setLoading, onSelect, theme 
                 backgroundColor: node.color, borderRadius: 2,
               }} />
               <span>
-                <strong>{node.label}</strong>: {node.value.toLocaleString()}
+                <strong>{node.label}</strong>: {fmtVal(node.value)}
               </span>
             </div>
           )}

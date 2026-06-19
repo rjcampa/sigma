@@ -2,6 +2,7 @@ import { useMemo, useEffect } from "react";
 import { catColors } from "../palette";
 import { ResponsiveRadialBar } from "@nivo/radial-bar";
 import { aggregate } from "../aggregate";
+import { makeFormatter } from "../format";
 
 /**
  * Radial Bar Plugin
@@ -65,6 +66,8 @@ export default function RadialBar({ config, sigmaData, setLoading, onSelect, the
     );
   }
 
+  const fmtVal = makeFormatter(config);
+
   return (
     <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column" }}>
       {config.title && (
@@ -79,7 +82,7 @@ export default function RadialBar({ config, sigmaData, setLoading, onSelect, the
         <ResponsiveRadialBar
           data={radialData}
           theme={theme?.nivo}
-          valueFormat=">,.0f"
+          valueFormat={fmtVal}
           margin={{ top: 40, right: 120, bottom: 40, left: 40 }}
           padding={0.4}
           cornerRadius={2}

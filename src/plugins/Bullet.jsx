@@ -2,6 +2,7 @@ import { useMemo, useEffect } from "react";
 import { rampColors } from "../palette";
 import { ResponsiveBullet } from "@nivo/bullet";
 import { aggregate } from "../aggregate";
+import { makeFormatter } from "../format";
 
 /**
  * Bullet Chart Plugin
@@ -58,6 +59,7 @@ export default function Bullet({ config, sigmaData, setLoading, onSelect, theme 
     );
   }
   const rangeColors = rampColors(config);
+  const fmtVal = makeFormatter(config);
 
   return (
     <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column" }}>
@@ -82,6 +84,12 @@ export default function Bullet({ config, sigmaData, setLoading, onSelect, theme 
           measureColors={["#333"]}
           markerColors={["#e53935"]}
           markerSize={0.8}
+          tooltip={({ color, v0, v1 }) => (
+            <div style={{ background: theme?.tooltipBg ?? "#fff", color: theme?.text ?? "#333", padding: "4px 8px", borderRadius: 4, fontSize: 12, boxShadow: "0 1px 4px rgba(0,0,0,0.2)" }}>
+              <span style={{ display: "inline-block", width: 10, height: 10, background: color, marginRight: 6, borderRadius: 2 }} />
+              {v1 != null ? `${fmtVal(v0)} – ${fmtVal(v1)}` : fmtVal(v0)}
+            </div>
+          )}
           animate={true}
           motionConfig="gentle"
           onClick={(datum) => {

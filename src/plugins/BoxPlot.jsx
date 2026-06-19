@@ -1,5 +1,6 @@
 import { useMemo, useEffect } from "react";
 import { catColors } from "../palette";
+import { makeFormatter } from "../format";
 import { ResponsiveBoxPlot } from "@nivo/boxplot";
 
 /**
@@ -54,6 +55,7 @@ export default function BoxPlot({ config, sigmaData, setLoading, onSelect, theme
     );
   }
   const hasSub = !!config.dimension2;
+  const fmtVal = makeFormatter(config);
 
   return (
     <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column" }}>
@@ -74,6 +76,7 @@ export default function BoxPlot({ config, sigmaData, setLoading, onSelect, theme
           groups={groups}
           subGroups={subGroups}
           value="value"
+          valueFormat={fmtVal}
           margin={{ top: 40, right: hasSub ? 140 : 40, bottom: 60, left: 70 }}
           padding={0.3}
           colorBy={hasSub ? "subGroup" : "group"}

@@ -2,6 +2,7 @@ import { useMemo, useEffect } from "react";
 import { catColors } from "../palette";
 import { ResponsiveChord } from "@nivo/chord";
 import { aggregate } from "../aggregate";
+import { makeFormatter } from "../format";
 
 /**
  * Chord Diagram Plugin
@@ -61,6 +62,8 @@ export default function Chord({ config, sigmaData, setLoading, onSelect, theme }
     );
   }
 
+  const fmtVal = makeFormatter(config);
+
   return (
     <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column" }}>
       {config.title && (
@@ -77,7 +80,7 @@ export default function Chord({ config, sigmaData, setLoading, onSelect, theme }
           keys={keys}
           margin={{ top: 60, right: 60, bottom: 90, left: 60 }}
           theme={theme?.nivo}
-          valueFormat=">,.0f"
+          valueFormat={fmtVal}
           padAngle={0.02}
           innerRadiusRatio={0.96}
           innerRadiusOffset={0.02}

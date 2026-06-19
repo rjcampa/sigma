@@ -2,6 +2,7 @@ import { useMemo, useEffect } from "react";
 import { rampColors } from "../palette";
 import { ResponsiveCalendar } from "@nivo/calendar";
 import { aggregate } from "../aggregate";
+import { makeFormatter } from "../format";
 
 /**
  * Calendar Heatmap Plugin
@@ -65,6 +66,7 @@ export default function Calendar({ config, sigmaData, setLoading, onSelect, them
   }
 
   const colors = rampColors(config);
+  const fmtVal = makeFormatter(config);
 
   return (
     <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column" }}>
@@ -83,6 +85,7 @@ export default function Calendar({ config, sigmaData, setLoading, onSelect, them
           theme={theme?.nivo}
           from={from}
           to={to}
+          valueFormat={fmtVal}
           emptyColor="#eeeeee"
           colors={colors}
           margin={{ top: 40, right: 40, bottom: 50, left: 40 }}
@@ -102,7 +105,7 @@ export default function Calendar({ config, sigmaData, setLoading, onSelect, them
                 backgroundColor: color, borderRadius: 2,
               }} />
               <span>
-                <strong>{day}</strong>: {value != null ? value.toLocaleString() : "N/A"}
+                <strong>{day}</strong>: {value != null ? value : "N/A"}
               </span>
             </div>
           )}

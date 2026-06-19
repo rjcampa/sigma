@@ -2,6 +2,7 @@ import { useMemo, useEffect } from "react";
 import { catColors } from "../palette";
 import { ResponsiveMarimekko } from "@nivo/marimekko";
 import { aggregate } from "../aggregate";
+import { makeFormatter } from "../format";
 
 /**
  * Marimekko / Mosaic Plugin
@@ -65,6 +66,8 @@ export default function Marimekko({ config, sigmaData, setLoading, onSelect, the
     );
   }
 
+  const fmtVal = makeFormatter(config);
+
   return (
     <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column" }}>
       {config.title && (
@@ -82,6 +85,7 @@ export default function Marimekko({ config, sigmaData, setLoading, onSelect, the
           id="id"
           value="_total"
           dimensions={dimensions}
+          valueFormat={fmtVal}
           margin={{ top: 40, right: 80, bottom: 100, left: 80 }}
           innerPadding={9}
           axisTop={null}

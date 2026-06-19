@@ -2,6 +2,7 @@ import { useMemo, useEffect } from "react";
 import { catColors } from "../palette";
 import { ResponsiveFunnel } from "@nivo/funnel";
 import { aggregate } from "../aggregate";
+import { makeFormatter } from "../format";
 
 /**
  * Funnel Plugin
@@ -76,6 +77,8 @@ export default function Funnel({ config, sigmaData, setLoading, onSelect, theme 
     );
   }
 
+  const fmtVal = makeFormatter(config);
+
   // Custom layer: step-to-step conversion %, in the left margin at each band.
   const ConversionLayer = ({ parts }) => (
     <g>
@@ -118,7 +121,7 @@ export default function Funnel({ config, sigmaData, setLoading, onSelect, theme 
           data={funnelData}
           theme={theme?.nivo}
           margin={{ top: 20, right: 20, bottom: 20, left: 72 }}
-          valueFormat=">,.0f"
+          valueFormat={fmtVal}
           colors={catColors(config)}
           borderWidth={0}
           shapeBlending={0.66}
